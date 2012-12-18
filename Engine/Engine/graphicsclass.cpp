@@ -62,7 +62,22 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/sphere.txt", L"../Engine/data/seafloor.dds");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, L"../Engine/data/seafloor.dds");
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the model object.
+	m_Model2 = new ModelClass;
+	if(!m_Model2)
+	{
+		return false;
+	}
+
+	// Initialize the model object.
+	result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2.5, 20, 1, L"../Engine/data/seafloor.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -146,31 +161,38 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Frame(int mouseDiffX, int mouseDiffY, bool W, bool S)
+bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo* guInf)
 {
 	bool result;
 	static float rotation = 0.0f;
-	float step = .01;
+	float step = .1;
 	D3DXVECTOR3 at;
 
-	float x = (float)(100 * mouseDiffX) / 100.f;
-	float y = (float)(100 * mouseDiffY) / 100.f;
+	float x = (float)(100 * guInf->mouseDiffX) / 100.f;
+	float y = (float)(100 * guInf->mouseDiffY) / 100.f;
 
 	m_Camera->IncRotation(y / 5.0f, x / 5.0f, 0);
 	
-	if (W)
+	if (guInf->wKey)
 	{
 		at = m_Camera->GetDirection() * step;
 		m_Camera->IncPosition(at.x, at.y, at.z);
 	}
-	/*else if (S)
+	if (guInf->sKey)
 	{
-		step = -.75;
+		at = m_Camera->GetDirection() * -step;
+		m_Camera->IncPosition(at.x, at.y, at.z);
 	}
-	else
+	if (guInf->aKey)
 	{
-		step = 0;
-	}*/
+		at = m_Camera->GetRight() * step;
+		m_Camera->IncPosition(at.x, at.y, at.z);
+	}
+	if (guInf->dKey)
+	{
+		at = m_Camera->GetRight() * -step;
+		m_Camera->IncPosition(at.x, at.y, at.z);
+	}
 	
 	//m_Camera->IncPosition(at.x, at.y, at.z);
 
@@ -211,15 +233,28 @@ bool GraphicsClass::Render(float rotation)
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
-	//D3DXMATRIX temp;
-	//D3DXMatrixRotationX(&temp, rotation);
-	//D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
-
+	
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());
 
 	// Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
+								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	if(!result)
+	{
+		return false;
+	}
+
+	m_D3D->GetWorldMatrix(worldMatrix);
+	D3DXMatrixRotationY(&worldMatrix, rotation);
+	D3DXMATRIX temp;
+	D3DXMatrixRotationX(&temp, rotation);
+	D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
+
+	m_Model2->Render(m_D3D->GetDeviceContext());
+
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if(!result)

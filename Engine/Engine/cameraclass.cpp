@@ -112,9 +112,14 @@ void CameraClass::Render()
 	D3DXVec3TransformCoord(&lookAt, &lookAt, &rotationMatrix);
 	D3DXVec3TransformCoord(&up, &up, &rotationMatrix);
 
+	m_direction = D3DXVECTOR3(lookAt);
+
+	m_right.x = lookAt.y*up.z - lookAt.z*up.y;
+	m_right.y = lookAt.z*up.x - lookAt.x*up.z;
+	m_right.z = lookAt.x*up.y - lookAt.y*up.x;
+
 	// Translate the rotated camera position to the location of the viewer.
 	lookAt = position + lookAt;
-	m_direction = D3DXVECTOR3(lookAt);
 
 	// Finally create the view matrix from the three updated vectors.
 	D3DXMatrixLookAtLH(&m_viewMatrix, &position, &lookAt, &up);
@@ -127,4 +132,9 @@ void CameraClass::GetViewMatrix(D3DXMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
 	return;
+}
+
+D3DXVECTOR3 CameraClass::GetRight()
+{
+	return m_right;
 }

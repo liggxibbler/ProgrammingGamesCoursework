@@ -29,17 +29,12 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 
 
 	// Load in the model data,
-	//result = LoadModel(modelFilename);
-	//if(!result)
-	//{
-	//	return false;
-	//}
-
-	result = LoadCylinder(1000, .5, 4, 1);
+	result = LoadModel(modelFilename);
 	if(!result)
 	{
-		return true;
+		return false;
 	}
+
 
 	// Initialize the vertex and index buffers.
 	result = InitializeBuffers(device);
@@ -58,6 +53,35 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	return true;
 }
 
+bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v, WCHAR* filename)
+{
+	bool result;
+
+
+	// Load in the model data,
+	result = LoadCylinder(R, H, r, v);
+	if(!result)
+	{
+		return false;
+	}
+
+
+	// Initialize the vertex and index buffers.
+	result = InitializeBuffers(device);
+	if(!result)
+	{
+		return false;
+	}
+
+	// Load the texture for this model.
+	result = LoadTexture(device, filename);
+	if(!result)
+	{
+		return false;
+	}
+
+	return true;
+}
 
 void ModelClass::Shutdown()
 {

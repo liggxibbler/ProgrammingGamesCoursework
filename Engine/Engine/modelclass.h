@@ -4,7 +4,6 @@
 #ifndef _MODELCLASS_H_
 #define _MODELCLASS_H_
 
-
 //////////////
 // INCLUDES //
 //////////////
@@ -19,6 +18,11 @@ using namespace std;
 ///////////////////////
 #include "textureclass.h"
 
+enum ModelEnum
+{
+	MODEL_FROM_FILE = 0x00,
+	MODEL_CYLINDER  = 0x01
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ModelClass
@@ -70,6 +74,7 @@ public:
 	~ModelClass();
 
 	bool Initialize(ID3D11Device*, char*, WCHAR*);
+	bool Initialize(ID3D11Device*, float, float, int, int, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 

@@ -30,13 +30,19 @@ const float SCREEN_NEAR = 0.1f;
 class GraphicsClass
 {
 public:
+	struct GraphicsUpdateInfo
+	{
+		bool wKey, aKey, sKey, dKey;
+		int mouseDiffX, mouseDiffY;
+	};
+
 	GraphicsClass();
 	GraphicsClass(const GraphicsClass&);
 	~GraphicsClass();
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int mouseDiffX, int mouseDiffY, bool W, bool S);
+	bool Frame(GraphicsUpdateInfo*);
 
 private:
 	bool Render(float);
@@ -45,6 +51,7 @@ private:
 	D3DClass* m_D3D;
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
+	ModelClass* m_Model2;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 };
