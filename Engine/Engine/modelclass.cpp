@@ -35,7 +35,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	//	return false;
 	//}
 
-	result = LoadCylinder(2.5, 1, 20, 1);
+	result = LoadCylinder(1000, .5, 4, 1);
 	if(!result)
 	{
 		return true;

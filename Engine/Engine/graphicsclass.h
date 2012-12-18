@@ -36,7 +36,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame();
+	bool Frame(int mouseDiffX, int mouseDiffY, bool W, bool S);
 
 private:
 	bool Render(float);

@@ -94,7 +94,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetDirection(0.0f, -1.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(100.0f);
 
@@ -146,11 +146,33 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Frame()
+bool GraphicsClass::Frame(int mouseDiffX, int mouseDiffY, bool W, bool S)
 {
 	bool result;
 	static float rotation = 0.0f;
+	float step = .01;
+	D3DXVECTOR3 at;
 
+	float x = (float)(100 * mouseDiffX) / 100.f;
+	float y = (float)(100 * mouseDiffY) / 100.f;
+
+	m_Camera->IncRotation(y / 5.0f, x / 5.0f, 0);
+	
+	if (W)
+	{
+		at = m_Camera->GetDirection() * step;
+		m_Camera->IncPosition(at.x, at.y, at.z);
+	}
+	/*else if (S)
+	{
+		step = -.75;
+	}
+	else
+	{
+		step = 0;
+	}*/
+	
+	//m_Camera->IncPosition(at.x, at.y, at.z);
 
 	// Update the rotation variable each frame.
 	rotation += (float)D3DX_PI * 0.005f;
@@ -188,10 +210,10 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	D3DXMatrixRotationY(&worldMatrix, rotation/2);
-	D3DXMATRIX temp;
-	D3DXMatrixRotationX(&temp, rotation);
-	D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
+	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
+	//D3DXMATRIX temp;
+	//D3DXMatrixRotationX(&temp, rotation);
+	//D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());
