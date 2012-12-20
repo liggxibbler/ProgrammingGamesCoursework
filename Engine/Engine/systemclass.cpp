@@ -138,38 +138,24 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
-	int mouseDiffX, mouseDiffY;
-	bool result,
-		wPressed,
-		sPressed,
-		aPressed,
-		dPressed;
-
+	bool result;
 	// Check if the user pressed escape and wants to exit the application.
 	result = m_Input->Frame();
 	if(!result)
 	{
 		return false;
 	}
-	
-	wPressed = m_Input->IsWPressed(),
-	sPressed = m_Input->IsSPressed(),
-	aPressed = m_Input->IsAPressed(),
-	dPressed = m_Input->IsDPressed();
 
-	m_Input->GetMouseDiff(mouseDiffX, mouseDiffY);
-
-	GraphicsClass::GraphicsUpdateInfo guInf;
-	guInf.wKey = wPressed;
-	guInf.aKey = aPressed;
-	guInf.sKey = sPressed;
-	guInf.dKey = dPressed;
-	guInf.mouseDiffX = mouseDiffX;
-	guInf.mouseDiffY = mouseDiffY;
+	static GraphicsClass::GraphicsUpdateInfo guInf;
+	guInf.wKey = m_Input->IsWPressed();
+	guInf.aKey = m_Input->IsAPressed();
+	guInf.sKey = m_Input->IsSPressed();
+	guInf.dKey = m_Input->IsDPressed();
+	m_Input->GetMouseDiff(guInf.mouseDiffX, guInf.mouseDiffY);
 
 
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame(&guInf);
+	result = m_Graphics->Frame(guInf);
 	if(!result)
 	{
 		return false;

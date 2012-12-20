@@ -74,7 +74,7 @@ public:
 	~ModelClass();
 
 	bool Initialize(ID3D11Device*, char*, WCHAR*);
-	bool Initialize(ID3D11Device*, float, float, int, int, WCHAR*);
+	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -91,7 +91,7 @@ private:
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
-	bool LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice);
+	bool LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice, float texScale);
 	void ReleaseModel();
 	bool CalculateBNT();
 	void CalculateTangentBinormal(int, int, int);

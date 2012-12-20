@@ -62,7 +62,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, L"../Engine/data/seafloor.dds");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../Engine/data/seafloor.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -77,7 +77,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2.5, 20, 1, L"../Engine/data/seafloor.dds");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2.5, 20, 1, 2, L"../Engine/data/seafloor.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -161,40 +161,12 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo* guInf)
+bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 {
 	bool result;
 	static float rotation = 0.0f;
-	float step = .1;
-	D3DXVECTOR3 at;
-
-	float x = (float)(100 * guInf->mouseDiffX) / 100.f;
-	float y = (float)(100 * guInf->mouseDiffY) / 100.f;
-
-	m_Camera->IncRotation(y / 5.0f, x / 5.0f, 0);
 	
-	if (guInf->wKey)
-	{
-		at = m_Camera->GetDirection() * step;
-		m_Camera->IncPosition(at.x, at.y, at.z);
-	}
-	if (guInf->sKey)
-	{
-		at = m_Camera->GetDirection() * -step;
-		m_Camera->IncPosition(at.x, at.y, at.z);
-	}
-	if (guInf->aKey)
-	{
-		at = m_Camera->GetRight() * step;
-		m_Camera->IncPosition(at.x, at.y, at.z);
-	}
-	if (guInf->dKey)
-	{
-		at = m_Camera->GetRight() * -step;
-		m_Camera->IncPosition(at.x, at.y, at.z);
-	}
-	
-	//m_Camera->IncPosition(at.x, at.y, at.z);
+	m_Camera->Frame(guInf.mouseDiffX, guInf.mouseDiffY, guInf.wKey, guInf.aKey, guInf.sKey, guInf.dKey);
 
 	// Update the rotation variable each frame.
 	rotation += (float)D3DX_PI * 0.005f;

@@ -36,13 +36,14 @@ public:
 		int mouseDiffX, mouseDiffY;
 	};
 
+public:
 	GraphicsClass();
 	GraphicsClass(const GraphicsClass&);
 	~GraphicsClass();
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(GraphicsUpdateInfo*);
+	bool Frame(GraphicsUpdateInfo&);
 
 private:
 	bool Render(float);

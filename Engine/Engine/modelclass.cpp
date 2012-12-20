@@ -53,13 +53,13 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	return true;
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v, WCHAR* filename)
+bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v, float ts, WCHAR* filename)
 {
 	bool result;
 
 
 	// Load in the model data,
-	result = LoadCylinder(R, H, r, v);
+	result = LoadCylinder(R, H, r, v, ts);
 	if(!result)
 	{
 		return false;
@@ -355,7 +355,7 @@ void ModelClass::ReleaseModel()
 	return;
 }
 
-bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice)
+bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice, float texScale)
 {
 	m_vertexCount = 6 * ((numRSlice+1) * (numVSlice+1)) + 6 * (numRSlice);
 	m_indexCount = m_vertexCount;
@@ -394,8 +394,8 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			side[h][a].x = Radius * cos(ang);
 			side[h][a].y = hAct;
 			side[h][a].z = Radius * sin(ang);
-			side[h][a].tu = ang / (2*D3DX_PI);
-			side[h][a].tv = (Height - hAct) / Height;
+			side[h][a].tu = ang / (2*D3DX_PI) * texScale;
+			side[h][a].tv = (Height - hAct) / Height * texScale;
 			side[h][a].nx = cos(ang);
 			side[h][a].ny = 0;
 			side[h][a].nz = sin(ang);
@@ -416,30 +416,30 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		top[index].y = Height;
 		top[index].z = z;
 
-		top[index].tu = u;
-		top[index].tv = v;
+		top[index].tu = u * texScale;
+		top[index].tv = v * texScale;
 
 		bottom[index].x = x;
 		bottom[index].y = 0;
 		bottom[index].z = z;
 
-		bottom[index].tu = u;
-		bottom[index++].tv = v;
+		bottom[index].tu = u * texScale;
+		bottom[index++].tv = v * texScale;
 	}
 
 	top[index].x = 0;
 	top[index].y = Height;
 	top[index].z = 0;
 
-	top[index].tu = .5f;
-	top[index].tv = .5f;
+	top[index].tu = .5f * texScale;
+	top[index].tv = .5f * texScale;
 
 	bottom[index].x = 0;
 	bottom[index].y = 0;
 	bottom[index].z = 0;
 
-	bottom[index].tu = .5f;
-	bottom[index].tv = .5f;
+	bottom[index].tu = .5f * texScale;
+	bottom[index].tv = .5f * texScale;
 
 
 

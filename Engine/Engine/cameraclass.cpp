@@ -114,9 +114,9 @@ void CameraClass::Render()
 
 	m_direction = D3DXVECTOR3(lookAt);
 
-	m_right.x = lookAt.y*up.z - lookAt.z*up.y;
-	m_right.y = lookAt.z*up.x - lookAt.x*up.z;
-	m_right.z = lookAt.x*up.y - lookAt.y*up.x;
+	m_right.x = -(lookAt.y*up.z - lookAt.z*up.y);
+	m_right.y = -(lookAt.z*up.x - lookAt.x*up.z);
+	m_right.z = -(lookAt.x*up.y - lookAt.y*up.x);
 
 	// Translate the rotated camera position to the location of the viewer.
 	lookAt = position + lookAt;
@@ -137,4 +137,36 @@ void CameraClass::GetViewMatrix(D3DXMATRIX& viewMatrix)
 D3DXVECTOR3 CameraClass::GetRight()
 {
 	return m_right;
+}
+
+void CameraClass::Frame(int xMouse, int yMouse, bool w, bool a, bool s, bool d)
+{
+	float step = .1;
+	D3DXVECTOR3 at;
+
+	float x = (float)(100 * xMouse) / 100.f; //  not sure why this works! but it adds to the smoothness
+	float y = (float)(100 * yMouse) / 100.f; // of the mouse camera control. //XIBB//
+
+	IncRotation(y / 5.0f, x / 5.0f, 0);
+	
+	if (w)
+	{
+		at = m_direction * step;
+		IncPosition(at.x, at.y, at.z);
+	}
+	if (s)
+	{
+		at = m_direction * -step;
+		IncPosition(at.x, at.y, at.z);
+	}
+	if (a)
+	{
+		at = m_right * -step;
+		IncPosition(at.x, at.y, at.z);
+	}
+	if (d)
+	{
+		at = m_right * step;
+		IncPosition(at.x, at.y, at.z);
+	}
 }

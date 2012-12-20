@@ -32,6 +32,7 @@ public:
 	D3DXVECTOR3 GetDirection();
 	D3DXVECTOR3 GetRight();
 
+	void Frame(int, int, bool, bool, bool, bool);
 	void Render();
 	void GetViewMatrix(D3DXMATRIX&);
 
