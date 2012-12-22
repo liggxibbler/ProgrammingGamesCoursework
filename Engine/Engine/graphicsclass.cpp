@@ -62,7 +62,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../Engine/data/seafloor.dds");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../data/standing.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -77,7 +77,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2.5, 20, 1, 2, L"../Engine/data/seafloor.dds");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/standing.bmp");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -189,6 +190,10 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 bool GraphicsClass::Render(float rotation)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	D3DXMATRIX cameraRot;
+	D3DXVECTOR3 up, right, at;
+	float mag;
+
 	bool result;
 
 
@@ -207,7 +212,7 @@ bool GraphicsClass::Render(float rotation)
 	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
 	
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Model->Render(m_D3D->GetDeviceContext());
+	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
 
 	// Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
@@ -224,10 +229,28 @@ bool GraphicsClass::Render(float rotation)
 	D3DXMatrixRotationX(&temp, rotation);
 	D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
-	m_Model2->Render(m_D3D->GetDeviceContext());
+	up = m_Camera->GetUp();
+	right = m_Camera->GetRight();
+	at = m_Camera->GetPosition();
+	mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
+	at /= -mag;
+
+	right.x = -(at.y*up.z - at.z*up.y);
+	right.y = -(at.z*up.x - at.x*up.z);
+	right.z = -(at.x*up.y - at.y*up.x);
+
+	mag = sqrtf(right.x*right.x + right.y*right.y + right.z*right.z);
+	right /= mag;
+
+	D3DXMatrixScaling(&worldMatrix, 10, 10, 10);
+	cameraRot = D3DXMATRIX(right.x, right.y, right.z, 0, up.x, up.y, up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
+	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
+
+
+	m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
+								   m_Model2->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if(!result)
 	{

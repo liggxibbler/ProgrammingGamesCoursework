@@ -99,6 +99,7 @@
     <ClInclude Include="textureclass.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="billboard.vs" />
     <None Include="light.ps" />
     <None Include="light.vs" />
   </ItemGroup>

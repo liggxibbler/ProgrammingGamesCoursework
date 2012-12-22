@@ -6,13 +6,15 @@
 
 CameraClass::CameraClass()
 {
-	m_positionX = 0.0f;
-	m_positionY = 0.0f;
-	m_positionZ = 0.0f;
+	m_position.x = 0.0f;
+	m_position.y = 0.0f;
+	m_position.z = 0.0f;
 
 	m_rotationX = 0.0f;
 	m_rotationY = 0.0f;
 	m_rotationZ = 0.0f;
+
+	m_velocity = D3DXVECTOR3(0,0,0);
 }
 
 
@@ -28,17 +30,18 @@ CameraClass::~CameraClass()
 
 void CameraClass::SetPosition(float x, float y, float z)
 {
-	m_positionX = x;
-	m_positionY = y;
-	m_positionZ = z;
+	//m_positionX = x;
+	//m_positionY = y;
+	//m_positionZ = z;
+	m_position = D3DXVECTOR3(x,y,z);
 	return;
 }
 
 void CameraClass::IncPosition(float x, float y, float z)
 {
-	m_positionX += x;
-	m_positionY += y;
-	m_positionZ += z;
+	m_position.x += x;
+	m_position.y += y;
+	m_position.z += z;
 	return;
 }
 
@@ -61,7 +64,8 @@ void CameraClass::IncRotation(float x, float y, float z)
 
 D3DXVECTOR3 CameraClass::GetPosition()
 {
-	return D3DXVECTOR3(m_positionX, m_positionY, m_positionZ);
+	//return D3DXVECTOR3(m_positionX, m_positionY, m_positionZ);
+	return m_position;
 }
 
 
@@ -80,25 +84,25 @@ D3DXVECTOR3 CameraClass::GetDirection()
 
 void CameraClass::Render()
 {
-	D3DXVECTOR3 up, position, lookAt;
+	D3DXVECTOR3 lookAt;
 	float yaw, pitch, roll;
 	D3DXMATRIX rotationMatrix;
 
 
 	// Setup the vector that points upwards.
-	up.x = 0.0f;
-	up.y = 1.0f;
-	up.z = 0.0f;
+	m_up.x = 0.0f;
+	m_up.y = 1.0f;
+	m_up.z = 0.0f;
 
 	// Setup the position of the camera in the world.
-	position.x = m_positionX;
-	position.y = m_positionY;
-	position.z = m_positionZ;
+	//position.x = m_positionX;
+	//position.y = m_positionY;
+	//position.z = m_positionZ;
 
 	// Setup where the camera is looking by default.
-	lookAt.x = 0.0f;
-	lookAt.y = 0.0f;
-	lookAt.z = 1.0f;
+	m_direction.x = 0.0f;
+	m_direction.y = 0.0f;
+	m_direction.z = 1.0f;
 
 	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
 	pitch = m_rotationX * 0.0174532925f;
@@ -109,20 +113,20 @@ void CameraClass::Render()
 	D3DXMatrixRotationYawPitchRoll(&rotationMatrix, yaw, pitch, roll);
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
-	D3DXVec3TransformCoord(&lookAt, &lookAt, &rotationMatrix);
-	D3DXVec3TransformCoord(&up, &up, &rotationMatrix);
+	D3DXVec3TransformCoord(&m_direction, &m_direction, &rotationMatrix);
+	D3DXVec3TransformCoord(&m_up, &m_up, &rotationMatrix);
 
-	m_direction = D3DXVECTOR3(lookAt);
+	//m_direction = D3DXVECTOR3(lookAt);
 
-	m_right.x = -(lookAt.y*up.z - lookAt.z*up.y);
-	m_right.y = -(lookAt.z*up.x - lookAt.x*up.z);
-	m_right.z = -(lookAt.x*up.y - lookAt.y*up.x);
+	m_right.x = -(m_direction.y*m_up.z - m_direction.z*m_up.y);
+	m_right.y = -(m_direction.z*m_up.x - m_direction.x*m_up.z);
+	m_right.z = -(m_direction.x*m_up.y - m_direction.y*m_up.x);
 
 	// Translate the rotated camera position to the location of the viewer.
-	lookAt = position + lookAt;
+	lookAt = m_position + m_direction;
 
 	// Finally create the view matrix from the three updated vectors.
-	D3DXMatrixLookAtLH(&m_viewMatrix, &position, &lookAt, &up);
+	D3DXMatrixLookAtLH(&m_viewMatrix, &m_position, &lookAt, &m_up);
 
 	return;
 }
@@ -139,34 +143,40 @@ D3DXVECTOR3 CameraClass::GetRight()
 	return m_right;
 }
 
+D3DXVECTOR3 CameraClass::GetUp()
+{
+	return m_up;
+}
+
 void CameraClass::Frame(int xMouse, int yMouse, bool w, bool a, bool s, bool d)
 {
-	float step = .1;
-	D3DXVECTOR3 at;
+	float step = .5, mag;
+	D3DXVECTOR3 at(0.0f, 0.0f, 0.0f);
 
-	float x = (float)(100 * xMouse) / 100.f; //  not sure why this works! but it adds to the smoothness
-	float y = (float)(100 * yMouse) / 100.f; // of the mouse camera control. //XIBB//
+	float x = static_cast<float>(xMouse);
+	float y = static_cast<float>(yMouse);
 
 	IncRotation(y / 5.0f, x / 5.0f, 0);
 	
 	if (w)
 	{
-		at = m_direction * step;
-		IncPosition(at.x, at.y, at.z);
+		at += m_direction;
 	}
 	if (s)
 	{
-		at = m_direction * -step;
-		IncPosition(at.x, at.y, at.z);
+		at -= m_direction;
 	}
 	if (a)
 	{
-		at = m_right * -step;
-		IncPosition(at.x, at.y, at.z);
+		at -= m_right;
 	}
 	if (d)
 	{
-		at = m_right * step;
-		IncPosition(at.x, at.y, at.z);
+		at += m_right;
 	}
+
+	//m_positionX += step * at.x;
+	//m_positionY += step * at.y;
+	//m_positionZ += step * at.z;
+	m_position += step * at;
 }

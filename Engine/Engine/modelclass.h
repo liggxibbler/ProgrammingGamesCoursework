@@ -76,7 +76,7 @@ public:
 	bool Initialize(ID3D11Device*, char*, WCHAR*);
 	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*);
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	void Render(ID3D11DeviceContext*, D3DXMATRIX& worldMatrix);
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
@@ -102,6 +102,8 @@ private:
 	int m_vertexCount, m_indexCount;
 	TextureClass* m_Texture;
 	ModelType* m_model;
+	D3DXVECTOR3 m_position;
+	D3DXVECTOR3 m_euler;
 };
 
 #endif
