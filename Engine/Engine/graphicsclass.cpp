@@ -9,6 +9,8 @@ GraphicsClass::GraphicsClass()
 	m_D3D = 0;
 	m_Camera = 0;
 	m_Model = 0;
+	m_Model2 = 0;
+	m_Sphere = 0;
 	m_LightShader = 0;
 	m_Light = 0;
 }
@@ -62,7 +64,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../data/standing.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../data/seafloor.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -78,7 +80,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/standing.bmp");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/standing.png");
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the model object.
+	m_Sphere = new ModelClass;
+	if(!m_Sphere)
+	{
+		return false;
+	}
+
+	// Initialize the model object.
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
+	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/env.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -190,8 +208,8 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 bool GraphicsClass::Render(float rotation)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	D3DXMATRIX cameraRot;
-	D3DXVECTOR3 up, right, at;
+	D3DXMATRIX cameraRot, temp;
+	D3DXVECTOR3 up, right, at, cameraPos;
 	float mag;
 
 	bool result;
@@ -199,9 +217,37 @@ bool GraphicsClass::Render(float rotation)
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
+	cameraPos = m_Camera->GetPosition();
+
+	m_D3D->TurnZBufferOff();
+	
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_D3D->GetWorldMatrix(worldMatrix);
+	m_D3D->GetProjectionMatrix(projectionMatrix);
+
+	// Rotate the world matrix by the rotation value so that the triangle will spin.
+	D3DXMatrixTranslation(&worldMatrix, cameraPos.x, cameraPos.y, cameraPos.z);
+	temp = D3DXMATRIX(1,0,0,0, 0,1,0,0, 0,0,-1,0, 0,0,0,1); // turn the sphere inside out, very bad idea
+
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	m_Sphere->Render(m_D3D->GetDeviceContext(), worldMatrix);
+	D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		m_Sphere->GetTexture(), m_Light->GetDirection(), D3DXVECTOR4(1,1,1,1), D3DXVECTOR4(0,0,0,1), 
+								   m_Camera->GetPosition(),  D3DXVECTOR4(0,0,0,1), m_Light->GetSpecularPower());
+	if(!result)
+	{
+		return false;
+	}
+
+	m_D3D->TurnZBufferOn();
+
+
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
@@ -225,7 +271,7 @@ bool GraphicsClass::Render(float rotation)
 
 	m_D3D->GetWorldMatrix(worldMatrix);
 	D3DXMatrixRotationY(&worldMatrix, rotation);
-	D3DXMATRIX temp;
+	//D3DXMATRIX temp;
 	D3DXMatrixRotationX(&temp, rotation);
 	D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
@@ -242,7 +288,7 @@ bool GraphicsClass::Render(float rotation)
 	mag = sqrtf(right.x*right.x + right.y*right.y + right.z*right.z);
 	right /= mag;
 
-	D3DXMatrixScaling(&worldMatrix, 10, 10, 10);
+	D3DXMatrixScaling(&worldMatrix, 3, 3, 3);
 	cameraRot = D3DXMATRIX(right.x, right.y, right.z, 0, up.x, up.y, up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
 
@@ -256,6 +302,8 @@ bool GraphicsClass::Render(float rotation)
 	{
 		return false;
 	}
+
+	m_D3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

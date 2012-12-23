@@ -53,6 +53,7 @@ private:
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
 	ModelClass* m_Model2;
+	ModelClass* m_Sphere;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 };
