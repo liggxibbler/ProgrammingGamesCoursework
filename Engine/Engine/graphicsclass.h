@@ -56,6 +56,7 @@ private:
 	ModelClass* m_Sphere;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
+	D3DXVECTOR3* m_positions;
 };
 
 #endif
