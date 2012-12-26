@@ -336,7 +336,7 @@ bool GraphicsClass::Render(float rotation)
 
 	for(int i = 0; i< 100; i++)
 	{
-		int j = 99 - zPos[i].i;
+		int j = i;//99 - zPos[i].i;
 		//int j = i;
 		up = m_Camera->GetUp();
 		right = m_Camera->GetRight();

@@ -383,7 +383,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	renderTargetBlendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	renderTargetBlendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	renderTargetBlendDesc.BlendOp = D3D11_BLEND_OP_ADD;
-	renderTargetBlendDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	renderTargetBlendDesc.SrcBlendAlpha = D3D11_BLEND_ZERO;
 	renderTargetBlendDesc.DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
 	renderTargetBlendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	renderTargetBlendDesc.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL; // should this be 11?
