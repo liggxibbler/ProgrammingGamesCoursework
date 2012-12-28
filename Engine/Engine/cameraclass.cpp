@@ -180,3 +180,43 @@ void CameraClass::Frame(int xMouse, int yMouse, bool w, bool a, bool s, bool d)
 	//m_positionZ += step * at.z;
 	m_position += step * at;
 }
+
+void CameraClass::GetBillboardAlign(D3DXMATRIX& out, D3DXVECTOR3& pos)
+{
+	D3DXVECTOR3 at, right;
+	float mag;
+
+	at = m_position - pos;
+	mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
+	at /= -mag;
+
+	right.x = -(at.y*m_up.z - at.z*m_up.y);
+	right.y = -(at.z*m_up.x - at.x*m_up.z);
+	right.z = -(at.x*m_up.y - at.y*m_up.x);
+
+	mag = sqrtf(right.x*right.x + right.y*right.y + right.z*right.z);
+	right /= mag;
+
+	out = D3DXMATRIX(right.x, right.y, right.z, 0, m_up.x, m_up.y, m_up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
+}
+
+void CameraClass::GetBillboardXZ(D3DXMATRIX& out, D3DXVECTOR3& pos)
+{
+	D3DXVECTOR3 at, right;
+	float mag;
+
+	at = m_position - pos;
+	at.y = 0;
+	mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
+	at /= -mag;
+
+	// cross product of at and y axis
+	right.x = at.z;//-(at.y*0 - at.z*1);
+	right.y = 0;//-(at.z*0 - at.x*0);
+	right.z = -at.x;//-(at.x*1 - at.y*0);
+
+	mag = sqrtf(right.x*right.x + right.z*right.z);
+	right /= mag;
+
+	out = D3DXMATRIX(right.x, right.y, right.z, 0, m_up.x, m_up.y, m_up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
+}

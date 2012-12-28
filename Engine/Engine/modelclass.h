@@ -93,7 +93,7 @@ private:
 	bool LoadModel(char*);
 	bool LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice, float texScale);
 	void ReleaseModel();
-	bool CalculateBNT();
+	bool CalculateBNT(ID3D11Device* device);
 	void CalculateTangentBinormal(int, int, int);
 	void CalculateNormal(int, int, int);
 

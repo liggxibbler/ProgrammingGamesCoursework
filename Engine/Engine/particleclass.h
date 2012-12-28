@@ -17,8 +17,9 @@ public:
 
 private:
 	// sort method
+	void SortByZ(D3DXMATRIX& viewMatrix);
 private:
-	ModelClass* m_quads;
+	ModelClass* m_quad;
 	int m_quadCount;
 };
 

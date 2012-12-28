@@ -31,6 +31,9 @@ public:
 	D3DXVECTOR3 GetDirection();
 	D3DXVECTOR3 GetRight();
 	D3DXVECTOR3 GetUp();
+	
+	void GetBillboardAlign(D3DXMATRIX& out, D3DXVECTOR3& pos);
+	void GetBillboardXZ(D3DXMATRIX& out, D3DXVECTOR3& pos);
 
 	void Frame(int, int, bool, bool, bool, bool);
 	void Render();

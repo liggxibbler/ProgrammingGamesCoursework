@@ -52,7 +52,7 @@ PixelInputType LightVertexShader(VertexInputType input)
     
 	input.position.w = 1.0f;
 
-	input.position.xyz = input.position.xyz;
+	//input.position.xyz = 2.0f * input.position.xyz;
 
 
 

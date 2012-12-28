@@ -399,6 +399,12 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			side[h][a].nx = cos(ang);
 			side[h][a].ny = 0;
 			side[h][a].nz = sin(ang);
+			side[h][a].bx = -sin(ang);
+			side[h][a].by = 0;
+			side[h][a].bz = cos(ang);
+			side[h][a].tx = 0;
+			side[h][a].ty = -1;
+			side[h][a].tx = 0;
 		}
 	}
 	
@@ -415,16 +421,26 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		top[index].x = x;
 		top[index].y = Height;
 		top[index].z = z;
-
 		top[index].tu = u * texScale;
 		top[index].tv = v * texScale;
+		top[index].bx = 1.0f;
+		top[index].by = 0.0f;
+		top[index].bz = 0.0f;
+		top[index].tx = 0.0f;
+		top[index].ty = 0.0f;
+		top[index].tz = 1.0f;
 
 		bottom[index].x = x;
 		bottom[index].y = 0;
 		bottom[index].z = z;
-
 		bottom[index].tu = u * texScale;
 		bottom[index++].tv = v * texScale;
+		bottom[index].bx = 0.0f;
+		bottom[index].by = 0.0f;
+		bottom[index].bz = 1.0f;
+		bottom[index].tx = 1.0f;
+		bottom[index].ty = 0.0f;
+		bottom[index].tz = 0.0f;
 	}
 
 	top[index].x = 0;
@@ -467,7 +483,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h][a].tv;
 			m_model[index].nx = side[h][a].nx;
 			m_model[index].ny = side[h][a].ny;
-			m_model[index++].nz = side[h][a].nz;
+			m_model[index].nz = side[h][a].nz;
+			m_model[index].tx = side[h][a].tx;
+			m_model[index].ty = side[h][a].ty;
+			m_model[index].tz = side[h][a].tz;
+			m_model[index].bx = side[h][a].by;
+			m_model[index].by = side[h][a].by;
+			m_model[index++].bz = side[h][a].bz;
 
 			m_model[index].x = side[h1][a1].x;
 			m_model[index].y = side[h1][a1].y - Height * .5f;
@@ -476,7 +498,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h1][a1].tv;
 			m_model[index].nx = side[h1][a1].nx;
 			m_model[index].ny = side[h1][a1].ny;
-			m_model[index++].nz = side[h1][a1].nz;
+			m_model[index].nz = side[h1][a1].nz;
+			m_model[index].tx = side[h1][a1].tx;
+			m_model[index].ty = side[h1][a1].ty;
+			m_model[index].tz = side[h1][a1].tz;
+			m_model[index].bx = side[h1][a1].by;
+			m_model[index].by = side[h1][a1].by;
+			m_model[index++].bz = side[h1][a1].bz;
 
 			m_model[index].x = side[h][a1].x;
 			m_model[index].y = side[h][a1].y - Height * .5f;
@@ -485,7 +513,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h][a1].tv;
 			m_model[index].nx = side[h][a1].nx;
 			m_model[index].ny = side[h][a1].ny;
-			m_model[index++].nz = side[h][a1].nz;
+			m_model[index].nz = side[h][a1].nz;
+			m_model[index].tx = side[h][a1].tx;
+			m_model[index].ty = side[h][a1].ty;
+			m_model[index].tz = side[h][a1].tz;
+			m_model[index].bx = side[h][a1].by;
+			m_model[index].by = side[h][a1].by;
+			m_model[index++].bz = side[h][a1].bz;
 
 			// second triangle
 			m_model[index].x = side[h][a].x;
@@ -495,7 +529,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h][a].tv;
 			m_model[index].nx = side[h][a].nx;
 			m_model[index].ny = side[h][a].ny;
-			m_model[index++].nz = side[h][a].nz;
+			m_model[index].nz = side[h][a].nz;
+			m_model[index].tx = side[h][a].tx;
+			m_model[index].ty = side[h][a].ty;
+			m_model[index].tz = side[h][a].tz;
+			m_model[index].bx = side[h][a].by;
+			m_model[index].by = side[h][a].by;
+			m_model[index++].bz = side[h][a].bz;
 
 			m_model[index].x = side[h1][a].x;
 			m_model[index].y = side[h1][a].y - Height * .5f;
@@ -504,7 +544,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h1][a].tv;
 			m_model[index].nx = side[h1][a].nx;
 			m_model[index].ny = side[h1][a].ny;
-			m_model[index++].nz = side[h1][a].nz;
+			m_model[index].nz = side[h1][a].nz;
+			m_model[index].tx = side[h1][a].tx;
+			m_model[index].ty = side[h1][a].ty;
+			m_model[index].tz = side[h1][a].tz;
+			m_model[index].bx = side[h1][a].by;
+			m_model[index].by = side[h1][a].by;
+			m_model[index++].bz = side[h1][a].bz;
 
 			m_model[index].x = side[h1][a1].x;
 			m_model[index].y = side[h1][a1].y - Height * .5f;
@@ -513,7 +559,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 			m_model[index].tv = side[h1][a1].tv;
 			m_model[index].nx = side[h1][a1].nx;
 			m_model[index].ny = side[h1][a1].ny;
-			m_model[index++].nz = side[h1][a1].nz;
+			m_model[index].nz = side[h1][a1].nz;
+			m_model[index].tx = side[h1][a1].tx;
+			m_model[index].ty = side[h1][a1].ty;
+			m_model[index].tz = side[h1][a1].tz;
+			m_model[index].bx = side[h1][a1].by;
+			m_model[index].by = side[h1][a1].by;
+			m_model[index++].bz = side[h1][a1].bz;
 		}
 	}
 
@@ -602,7 +654,7 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 	return true;
 }
 
-bool ModelClass::CalculateBNT()
+bool ModelClass::CalculateBNT(ID3D11Device* device)
 {
 	if(!m_vertexBuffer)
 	{
@@ -615,11 +667,23 @@ bool ModelClass::CalculateBNT()
 		CalculateNormal(i, i+1, i+2);
 	}
 
+	InitializeBuffers(device);
+
 	return true;
 }
 
 void ModelClass::CalculateTangentBinormal(int i1, int i2, int i3)
 {
+	//  Find two vectors, the tangent an the binormal (or bitangent),
+	// aligned with the u and v axes of the texture coordinates of the
+	// vertices of each polygon.
+	//
+	// The equations that are being solved are:
+	//   P1 - P0 = (u2 - u1)*B + (v2 - v1)*T
+	//   P2 - P0 = (u3 - u1)*B + (v3 - v1)*T
+	// for B and T, where P0, P1, and P2 are position vectors,
+	// u1,u2,u3 and v1,v2,v3 are their texture coordinates.
+
 	D3DXVECTOR3 P0, P1, P2;
 	D3DXVECTOR3 Q1, Q2, B, T;
 	float u11, u12, u21, u22;
@@ -632,21 +696,21 @@ void ModelClass::CalculateTangentBinormal(int i1, int i2, int i3)
 	Q1 = P1 - P0;
 	Q2 = P2 - P0;
 
-	u11 = m_model[i2].tu - m_model[i1].tu;
+	u11 = m_model[i2].tu - m_model[i1].tu;//P1->texture.x - P0->texture.x;
 	u12 = m_model[i2].tv - m_model[i1].tv;//P1->texture.y - P0->texture.y;
 	u21 = m_model[i3].tu - m_model[i1].tu;//P2->texture.x - P0->texture.x;
 	u22 = m_model[i3].tv - m_model[i1].tv;//P2->texture.y - P0->texture.y;
 
 	float detInv = u11*u22 - u21*u12;
 	if(detInv == 0)
+	//  Equations cannot be solved, probably because the polygon is
+	// actually a line segment, i.e. the three vertices lie on the same line
 	{
 		B = D3DXVECTOR3(0,0,0);
 		T = D3DXVECTOR3(0,0,0);
 	}
 	else
 	{
-		//detInv = 1 / detInv;
-
 		B = D3DXVECTOR3(u22*Q1 - u12*Q2);
 
 		size = sqrt(B.x*B.x + B.y*B.y + B.z*B.z);
@@ -656,6 +720,7 @@ void ModelClass::CalculateTangentBinormal(int i1, int i2, int i3)
 
 
 		T = D3DXVECTOR3(-u21*Q1 + u11*Q2);
+
 		size = sqrt(T.x*T.x + T.y*T.y + T.z*T.z);
 		T.x = T.x / size;
 		T.y = T.y / size;
@@ -697,13 +762,17 @@ void ModelClass::CalculateNormal(int i1, int i2, int i3)
 
 	float x, y, z;
 
+	// Find two vectors on the plane of the polygan
 	Q12 = P2 - P1;
 	Q13 = P3 - P1;
 
+	//  Cross product of Q12 and Q13 to find a direction 
+	// perpendicular to the polygon
 	x = Q12.y*Q13.z - Q12.z*Q13.y;
 	y = Q12.z*Q13.x - Q12.x*Q13.z;
 	z = Q12.x*Q13.y - Q12.y*Q13.x;
 
+	// Normalize the normal vector...
 	float mag = sqrt(x*x + y*y + z*z);
 	x /= mag;
 	y /= mag;

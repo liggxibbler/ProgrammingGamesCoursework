@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, .5, 4, 1, 100, L"../data/grass.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 100, L"../data/grass.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -81,7 +81,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree.dds");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud.png");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2, 4, 1, 1, L"../data/seafloor.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -135,9 +136,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	srand(time(NULL));
 	for(int i =0; i<100; i++)
 	{
-		x = ((rand() % 100) / 100.0f) * 40 - 20.0;
+		x = ((rand() % 100) / 100.0f) * 10 - 5.0;
 		y = 0;
-		z = ((rand() % 100) / 100.0f) * 40 - 20.0;
+		z = ((rand() % 100) / 100.0f) * 10 - 5.0;
 		m_positions[i].x = x;
 		m_positions[i].y = y;
 		m_positions[i].z = z;
@@ -299,23 +300,25 @@ bool GraphicsClass::Render(float rotation)
 
 	struct zSort
 	{
-		D3DXVECTOR3 v;
+		float z;
 		int i;
 		zSort(){}
-		zSort(D3DXVECTOR3 _v, int _i)
+		zSort(float _z, int _i)
 		{
-			v=D3DXVECTOR3(_v);
-			i=_i;
+			z = _z;
+			i = _i;
 		}
 	};
 
 	zSort zPos[100], zTemp;
 	float zi, zj;
+	D3DXVECTOR3 tempVec;
 	m_Camera->GetViewMatrix(temp);
 	
 	for(int i =0; i<100; i++)
 	{
-		D3DXVec3TransformCoord(&zPos[i].v, &m_positions[i], &temp);
+		D3DXVec3TransformCoord(&tempVec, &m_positions[i], &temp);
+		zPos[i].z = tempVec.z;
 		zPos[i].i = i;
 	}
 	// sort positions by z value, using the aweful bubble sort algorithm
@@ -323,45 +326,33 @@ bool GraphicsClass::Render(float rotation)
 	{
 		for(int j = i; j<100; j++)
 		{
-			zi = zPos[i].v.z;
-			zj = zPos[j].v.z;
+			zi = zPos[i].z;
+			zj = zPos[j].z;
 			if(zi > zj)
 			{
-				zTemp = zSort(zPos[i].v, zPos[i].i);
-				zPos[i] = zSort(zPos[j].v, zPos[j].i);
-				zPos[j] = zSort(zTemp.v, zTemp.i);
+				zTemp = zSort(zPos[i].z, zPos[i].i);
+				zPos[i] = zSort(zPos[j].z, zPos[j].i);
+				zPos[j] = zSort(zTemp.z, zTemp.i);
 			}
 		}
 	}
 
+
+	m_D3D->TurnAlphaBlendingOn();
 	for(int i = 0; i< 100; i++)
 	{
-		int j = i;//99 - zPos[i].i;
+		int j = 99 - zPos[i].i;
 		//int j = i;
-		up = m_Camera->GetUp();
-		right = m_Camera->GetRight();
-		
-		at = m_Camera->GetPosition() - m_positions[j];
-		mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
-		at /= -mag;
 
-		right.x = -(at.y*up.z - at.z*up.y);
-		right.y = -(at.z*up.x - at.x*up.z);
-		right.z = -(at.x*up.y - at.y*up.x);
+		m_Camera->GetBillboardAlign(cameraRot, m_positions[j]);
 
-		mag = sqrtf(right.x*right.x + right.y*right.y + right.z*right.z);
-		right /= mag;
-		
-		D3DXMatrixScaling(&worldMatrix, 3, 3, 3);
-		cameraRot = D3DXMATRIX(right.x, right.y, right.z, 0, up.x, up.y, up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
-		D3DXMatrixTranslation(&temp, 0, .5, 0);
-		D3DXMatrixMultiply(&worldMatrix, &temp, &cameraRot);
+		m_D3D->GetWorldMatrix(worldMatrix);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
 		D3DXMatrixTranslation(&temp, m_positions[j].x, 0, m_positions[j].z);
 		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &temp);
+		
 
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
-
-		m_D3D->TurnAlphaBlendingOn();
 		
 		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 			m_Model2->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
@@ -373,7 +364,6 @@ bool GraphicsClass::Render(float rotation)
 
 	}
 	m_D3D->TurnAlphaBlendingOff();
-	m_D3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
