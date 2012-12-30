@@ -65,10 +65,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 100, L"../data/grass.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 100, L"../data/grass.png", L"../data/BTSn.png");
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -81,13 +81,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud.png");
-	//result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 2, 4, 1, 1, L"../data/seafloor.dds");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree.dds", L"../data/SnakeScale.jpg");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), 3, 5, 20, 1, 1, L"../data/BPT.png", L"../data/BPTn.png");
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize billboard object.", L"Error", MB_OK);
 		return false;
 	}
+
+	m_Model2->CalculateBNT(m_D3D->GetDevice());
 
 	// Create the model object.
 	m_Sphere = new ModelClass;
@@ -98,10 +100,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain.png");
+	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain.png", L"../data/BTSn.png");
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize skydome object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -136,9 +138,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	srand(time(NULL));
 	for(int i =0; i<100; i++)
 	{
-		x = ((rand() % 100) / 100.0f) * 10 - 5.0;
+		x = ((rand() % 100) / 100.0f) * 40 - 20.0;
 		y = 0;
-		z = ((rand() % 100) / 100.0f) * 10 - 5.0;
+		z = ((rand() % 100) / 100.0f) * 40 - 20.0;
 		m_positions[i].x = x;
 		m_positions[i].y = y;
 		m_positions[i].z = z;
@@ -235,7 +237,6 @@ bool GraphicsClass::Render(float rotation)
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	D3DXMATRIX cameraRot, temp;
 	D3DXVECTOR3 up, right, at, cameraPos;
-	float mag;
 
 	bool result;
 
@@ -341,10 +342,11 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnAlphaBlendingOn();
 	for(int i = 0; i< 100; i++)
 	{
-		int j = 99 - zPos[i].i;
-		//int j = i;
+		//int j = 99 - zPos[i].i;
+		int j = i;
 
 		m_Camera->GetBillboardAlign(cameraRot, m_positions[j]);
+		//m_D3D->GetWorldMatrix(cameraRot);
 
 		m_D3D->GetWorldMatrix(worldMatrix);
 		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);

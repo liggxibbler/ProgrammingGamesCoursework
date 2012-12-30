@@ -35,6 +35,8 @@ private:
 		D3DXVECTOR3 position;
 	    D3DXVECTOR2 texture;
 		D3DXVECTOR3 normal;
+		D3DXVECTOR3 binormal;
+		D3DXVECTOR3 tangent;
 	};
 
 	struct ModelType
@@ -73,13 +75,16 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, char*, WCHAR*);
-	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*);
+	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*, D3DXMATRIX& worldMatrix);
 
+	bool CalculateBNT(ID3D11Device* device);
+
 	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
+	ID3D11ShaderResourceView* GetTexture(int index);
+	ID3D11ShaderResourceView** GetTexture();
 
 
 private:
@@ -87,13 +92,13 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
 	bool LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice, float texScale);
 	void ReleaseModel();
-	bool CalculateBNT(ID3D11Device* device);
+	
 	void CalculateTangentBinormal(int, int, int);
 	void CalculateNormal(int, int, int);
 

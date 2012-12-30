@@ -23,7 +23,7 @@ ModelClass::~ModelClass()
 }
 
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename, WCHAR* normalFilename)
 {
 	bool result;
 
@@ -44,7 +44,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	}
 
 	// Load the texture for this model.
-	result = LoadTexture(device, textureFilename);
+	result = LoadTexture(device, textureFilename, normalFilename);
 	if(!result)
 	{
 		return false;
@@ -53,7 +53,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	return true;
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v, float ts, WCHAR* filename)
+bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v, float ts, WCHAR* filename, WCHAR* normalmap)
 {
 	bool result;
 
@@ -74,7 +74,7 @@ bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v
 	}
 
 	// Load the texture for this model.
-	result = LoadTexture(device, filename);
+	result = LoadTexture(device, filename, normalmap);
 	if(!result)
 	{
 		return false;
@@ -113,7 +113,12 @@ int ModelClass::GetIndexCount()
 }
 
 
-ID3D11ShaderResourceView* ModelClass::GetTexture()
+ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
+{
+	return m_Texture->GetTexture(index);
+}
+
+ID3D11ShaderResourceView** ModelClass::GetTexture()
 {
 	return m_Texture->GetTexture();
 }
@@ -149,6 +154,8 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 		vertices[i].position = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
 		vertices[i].texture = D3DXVECTOR2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = D3DXVECTOR3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+		vertices[i].binormal = D3DXVECTOR3(m_model[i].bx, m_model[i].by, m_model[i].bz);
+		vertices[i].tangent = D3DXVECTOR3(m_model[i].tx, m_model[i].ty, m_model[i].tz);
 
 		indices[i] = i;
 	}
@@ -247,7 +254,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 }
 
 
-bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename, WCHAR* normalmap)
 {
 	bool result;
 
@@ -260,7 +267,7 @@ bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 	}
 
 	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
+	result = m_Texture->Initialize(device, filename, normalmap);
 	if(!result)
 	{
 		return false;
