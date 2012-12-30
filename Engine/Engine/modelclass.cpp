@@ -73,6 +73,8 @@ bool ModelClass::Initialize(ID3D11Device* device, float R, float H, int r, int v
 		return false;
 	}
 
+	//CalculateBNT(device);
+
 	// Load the texture for this model.
 	result = LoadTexture(device, filename, normalmap);
 	if(!result)
@@ -588,7 +590,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		m_model[index].tv = top[i].tv;
 		m_model[index].nx = 0.0f;
 		m_model[index].ny = 1.0f;
-		m_model[index++].nz = 0.0f;
+		m_model[index].nz = 0.0f;
+		m_model[index].tx = 0.0f;
+		m_model[index].ty = 0.0f;
+		m_model[index].tz = 1.0f;
+		m_model[index].bx = 1.0f;
+		m_model[index].by = 0.0f;
+		m_model[index++].bz = 0.0f;
 
 		m_model[index].x = top[numRSlice].x;
 		m_model[index].y = top[numRSlice].y - Height * .5f;
@@ -597,7 +605,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		m_model[index].tv = top[numRSlice].tv;
 		m_model[index].nx = 0.0f;
 		m_model[index].ny = 1.0f;
-		m_model[index++].nz = 0.0f;
+		m_model[index].nz = 0.0f;
+		m_model[index].tx = 0.0f;
+		m_model[index].ty = 0.0f;
+		m_model[index].tz = 1.0f;
+		m_model[index].bx = 1.0f;
+		m_model[index].by = 0.0f;
+		m_model[index++].bz = 0.0f;
 
 		m_model[index].x = top[(i + 1)%numRSlice].x;
 		m_model[index].y = top[(i + 1)%numRSlice].y - Height * .5f;
@@ -606,7 +620,13 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		m_model[index].tv = top[(i + 1)%numRSlice].tv;
 		m_model[index].nx = 0.0f;
 		m_model[index].ny = 1.0f;
-		m_model[index++].nz = 0.0f;
+		m_model[index].nz = 0.0f;
+		m_model[index].tx = 0.0f;
+		m_model[index].ty = 0.0f;
+		m_model[index].tz = 1.0f;
+		m_model[index].bx = 1.0f;
+		m_model[index].by = 0.0f;
+		m_model[index++].bz = 0.0f;
 		
 		//one from the bottom
 		m_model[index].x = bottom[i].x;
@@ -637,6 +657,7 @@ bool ModelClass::LoadCylinder(float Radius, float Height, int numRSlice, int num
 		m_model[index].ny = -1.0f;
 		m_model[index++].nz = 0.0f;
 	}
+
 
 	//if(!CalculateBNT())
 	//{
@@ -719,14 +740,12 @@ void ModelClass::CalculateTangentBinormal(int i1, int i2, int i3)
 	else
 	{
 		B = D3DXVECTOR3(u22*Q1 - u12*Q2);
+		T = D3DXVECTOR3(-u21*Q1 + u11*Q2);
 
 		size = sqrt(B.x*B.x + B.y*B.y + B.z*B.z);
 		B.x = B.x / size;
 		B.y = B.y / size;
 		B.z = B.z / size;
-
-
-		T = D3DXVECTOR3(-u21*Q1 + u11*Q2);
 
 		size = sqrt(T.x*T.x + T.y*T.y + T.z*T.z);
 		T.x = T.x / size;

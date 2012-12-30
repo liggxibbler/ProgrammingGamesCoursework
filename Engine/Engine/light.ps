@@ -51,8 +51,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	tempNormal = shaderTexture[1].Sample(SampleType, input.tex);
 	tempNormal.xyz = 2*tempNormal.xyz -(float3)1;
 	
-	normal = tempNormal.x*input.tangent + tempNormal.y*input.normal + tempNormal.z*input.binormal;
-	normal = -normalize(normal);
+	normal = tempNormal.y*input.tangent + tempNormal.z*input.normal + tempNormal.x*input.binormal;
+	normal = normalize(normal);
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture[0].Sample(SampleType, input.tex);
@@ -67,7 +67,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Invert the light direction for calculations.
-    lightDir = -lightDirection;
+    lightDir = input.viewDirection;//lightDirection;
+
 
     // Calculate the amount of light on this pixel.
     lightIntensity = saturate(dot(normal, lightDir));

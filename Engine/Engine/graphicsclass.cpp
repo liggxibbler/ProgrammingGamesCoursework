@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 100, L"../data/grass.png", L"../data/BTSn.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 400, L"../data/grass.png", L"../data/floor2_ddn.jpg");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
@@ -81,8 +81,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree.dds", L"../data/SnakeScale.jpg");
-	//result = m_Model2->Initialize(m_D3D->GetDevice(), 3, 5, 20, 1, 1, L"../data/BPT.png", L"../data/BPTn.png");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree.dds", L"../data/BTSn.png");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize billboard object.", L"Error", MB_OK);
