@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 400, L"../data/grass.png", L"../data/floor2_ddn.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 100, 4, 1, 500, L"../data/grass.png", L"../data/floor2_ddn.jpg");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
@@ -81,8 +81,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree.dds", L"../data/BTSn.png");
-	//result = m_Model2->Initialize(m_D3D->GetDevice(), 1, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree2.png", L"../data/SnakeScale.jpg");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize billboard object.", L"Error", MB_OK);
@@ -122,6 +122,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the light shader object.
+	m_BitmapShader = new BitmapShaderClass;
+	if(!m_BitmapShader)
+	{
+		return false;
+	}
+
+	// Initialize the light shader object.
+	result = m_BitmapShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	// Create the light object.
 	m_Light = new LightClass;
 	if(!m_Light)
@@ -148,10 +163,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	//m_Light->SetAmbientColor(0.0f, 0.0f, 0.0f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.0f, -1.0f, 1.0f);
-	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(100.0f);
+	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularPower(1.0f);
 
 	return true;
 }
@@ -178,6 +194,13 @@ void GraphicsClass::Shutdown()
 		m_LightShader->Shutdown();
 		delete m_LightShader;
 		m_LightShader = 0;
+	}
+
+	if(m_BitmapShader)
+	{
+		m_BitmapShader->Shutdown();
+		delete m_BitmapShader;
+		m_BitmapShader = 0;
 	}
 
 	// Release the model object.
@@ -276,26 +299,7 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnZBufferOn();
 	m_D3D->CullBackFace();
 
-
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
-
-	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
-	
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
-
-	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
-								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	if(!result)
-	{
-		return false;
-	}
 
 	srand(time(NULL)*1000.0f);
 
@@ -366,6 +370,31 @@ bool GraphicsClass::Render(float rotation)
 
 	}
 	m_D3D->TurnAlphaBlendingOff();
+
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_D3D->GetWorldMatrix(worldMatrix);
+	m_D3D->GetOrthoMatrix(projectionMatrix);
+
+	//D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
+	D3DXMatrixRotationX(&worldMatrix, 90);
+
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
+
+	// Render the model using the light shader.
+	/*result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
+								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+*/
+	m_D3D->TurnZBufferOff();
+	result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, projectionMatrix, 
+								   m_Model->GetTexture());
+	if(!result)
+	{
+		return false;
+	}
+	m_D3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

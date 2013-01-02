@@ -48,6 +48,9 @@
     <ClCompile Include="particleclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bitmapshaderclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -80,12 +83,21 @@
     <ClInclude Include="particleclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bitmapShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="light.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="bitmap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="bitmap.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

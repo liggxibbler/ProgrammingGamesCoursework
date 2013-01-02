@@ -67,8 +67,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Invert the light direction for calculations.
-    lightDir = input.viewDirection;//lightDirection;
-
+    
+	//lightDir = input.viewDirection;
+	lightDir = -lightDirection;
 
     // Calculate the amount of light on this pixel.
     lightIntensity = saturate(dot(normal, lightDir));

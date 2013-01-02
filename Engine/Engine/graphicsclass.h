@@ -12,6 +12,7 @@
 #include "cameraclass.h"
 #include "modelclass.h"
 #include "lightshaderclass.h"
+#include "bitmapShaderClass.h"
 #include "lightclass.h"
 
 
@@ -55,6 +56,7 @@ private:
 	ModelClass* m_Model2;
 	ModelClass* m_Sphere;
 	LightShaderClass* m_LightShader;
+	BitmapShaderClass* m_BitmapShader;
 	LightClass* m_Light;
 	D3DXVECTOR3* m_positions;
 };
