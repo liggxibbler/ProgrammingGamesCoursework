@@ -13,7 +13,9 @@
 #include "modelclass.h"
 #include "lightshaderclass.h"
 #include "bitmapShaderClass.h"
+#include "particleshaderclass.h"
 #include "lightclass.h"
+#include "timerclass.h"
 
 
 /////////////
@@ -35,6 +37,7 @@ public:
 	{
 		bool wKey, aKey, sKey, dKey;
 		int mouseDiffX, mouseDiffY;
+		float time;
 	};
 
 public:
@@ -57,8 +60,10 @@ private:
 	ModelClass* m_Sphere;
 	LightShaderClass* m_LightShader;
 	BitmapShaderClass* m_BitmapShader;
+	ParticleShaderClass* m_ParticleShader;
 	LightClass* m_Light;
 	D3DXVECTOR3* m_positions;
+	float* m_phases;
 };
 
 #endif

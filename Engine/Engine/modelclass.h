@@ -108,7 +108,7 @@ private:
 	TextureClass* m_Texture;
 	ModelType* m_model;
 	D3DXVECTOR3 m_position;
-	D3DXVECTOR3 m_euler;
+	D3DXVECTOR3 m_rotation;
 };
 
 #endif

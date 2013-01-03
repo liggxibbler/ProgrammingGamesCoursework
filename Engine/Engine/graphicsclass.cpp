@@ -65,7 +65,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 100, 4, 1, 500, L"../data/grass.png", L"../data/floor2_ddn.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/ground.png", L"../data/floor2_ddn.jpg");
+	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
@@ -81,7 +82,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/tree2.png", L"../data/SnakeScale.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud.png", L"../data/SnakeScale.jpg");
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -122,7 +123,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the light shader object.
+	// Create the bitmap shader object.
 	m_BitmapShader = new BitmapShaderClass;
 	if(!m_BitmapShader)
 	{
@@ -133,7 +134,22 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_BitmapShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the bitmap shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap shader object.
+	m_ParticleShader = new ParticleShaderClass;
+	if(!m_ParticleShader)
+	{
+		return false;
+	}
+
+	// Initialize the light shader object.
+	result = m_ParticleShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -150,15 +166,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		return false;
 	}
+	m_phases = new float[100];
+	if(!m_phases)
+	{
+		return false;
+	}
 	srand(time(NULL));
 	for(int i =0; i<100; i++)
 	{
-		x = ((rand() % 100) / 100.0f) * 40 - 20.0;
+		x = floorf(i / 10)/10.0 * 40 - 20.0;
+		//x = (rand() % 10) / 10.0 * 40 - 20.0;
 		y = 0;
-		z = ((rand() % 100) / 100.0f) * 40 - 20.0;
+		z = (i % 10)/10.0 * 40 - 20.0;
+		//z = (rand() % 10) / 10.0 * 40 - 20.0;
 		m_positions[i].x = x;
 		m_positions[i].y = y;
 		m_positions[i].z = z;
+		m_phases[i] = (rand() % 100)/100.0 * 2 * D3DX_PI;
 	}
 
 	// Initialize the light object.
@@ -233,19 +257,14 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 {
 	bool result;
-	static float rotation = 0.0f;
-	
+	static float time = 0.0f;
+
+	time += guInf.time;
+
 	m_Camera->Frame(guInf.mouseDiffX, guInf.mouseDiffY, guInf.wKey, guInf.aKey, guInf.sKey, guInf.dKey);
 
-	// Update the rotation variable each frame.
-	rotation += (float)D3DX_PI * 0.005f;
-	if(rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-	
 	// Render the graphics scene.
-	result = Render(rotation);
+	result = Render(time);
 	if(!result)
 	{
 		return false;
@@ -255,7 +274,7 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 }
 
 
-bool GraphicsClass::Render(float rotation)
+bool GraphicsClass::Render(float time)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	D3DXMATRIX cameraRot, temp;
@@ -299,9 +318,32 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnZBufferOn();
 	m_D3D->CullBackFace();
 
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
-	srand(time(NULL)*1000.0f);
+	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
+	//D3DXMatrixRotationX(&worldMatrix, 90);
+
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
+								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+	/*m_D3D->TurnZBufferOff();
+	result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, projectionMatrix, 
+								   m_Model->GetTexture());*/
+	if(!result)
+	{
+		return false;
+	}
+	//m_D3D->TurnZBufferOn();
+
+	m_D3D->GetProjectionMatrix(projectionMatrix);
 
 	struct zSort
 	{
@@ -346,8 +388,8 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnAlphaBlendingOn();
 	for(int i = 0; i< 100; i++)
 	{
-		//int j = 99 - zPos[i].i;
-		int j = i;
+		int j = 99 - zPos[i].i;
+		//int j = i;
 
 		m_Camera->GetBillboardAlign(cameraRot, m_positions[j]);
 		//m_D3D->GetWorldMatrix(cameraRot);
@@ -360,41 +402,15 @@ bool GraphicsClass::Render(float rotation)
 
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			m_Model2->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
-			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+			m_Model2->GetTexture(), time, 0.0001f, m_phases[j]);
 		if(!result)
 		{
 			return false;
 		}
 
 	}
-	m_D3D->TurnAlphaBlendingOff();
-
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetOrthoMatrix(projectionMatrix);
-
-	//D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
-	D3DXMatrixRotationX(&worldMatrix, 90);
-
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
-
-	// Render the model using the light shader.
-	/*result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
-								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-*/
-	m_D3D->TurnZBufferOff();
-	result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, projectionMatrix, 
-								   m_Model->GetTexture());
-	if(!result)
-	{
-		return false;
-	}
-	m_D3D->TurnZBufferOn();
+	m_D3D->TurnAlphaBlendingOff();	
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

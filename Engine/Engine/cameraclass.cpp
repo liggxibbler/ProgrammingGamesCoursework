@@ -186,7 +186,8 @@ void CameraClass::GetBillboardAlign(D3DXMATRIX& out, D3DXVECTOR3& pos)
 	D3DXVECTOR3 at, right;
 	float mag;
 
-	at = m_position - pos;
+	//at = m_position - pos;
+	at = -m_direction;
 	mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
 	at /= -mag;
 

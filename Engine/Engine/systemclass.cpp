@@ -62,6 +62,18 @@ bool SystemClass::Initialize()
 		return false;
 	}
 	
+	m_timer = new TimerClass;
+	if(!m_timer)
+	{
+		return false;
+	}
+
+	result = m_timer->Initialize();
+	if(!result)
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -140,6 +152,9 @@ bool SystemClass::Frame()
 {
 	bool result;
 	// Check if the user pressed escape and wants to exit the application.
+	
+	m_timer->Frame();
+	
 	result = m_Input->Frame();
 	if(!result)
 	{
@@ -151,6 +166,7 @@ bool SystemClass::Frame()
 	guInf.aKey = m_Input->IsAPressed();
 	guInf.sKey = m_Input->IsSPressed();
 	guInf.dKey = m_Input->IsDPressed();
+	guInf.time = (float)(m_timer->GetTime());
 	m_Input->GetMouseDiff(guInf.mouseDiffX, guInf.mouseDiffY);
 
 

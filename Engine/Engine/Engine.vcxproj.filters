@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader Classes">
+      <UniqueIdentifier>{ac75a981-d248-4154-aa76-89ec0155aa31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model Classes">
+      <UniqueIdentifier>{3d5a9435-37f4-4e0e-84a4-7cdcf4576838}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cameraclass.cpp">
@@ -30,26 +36,38 @@
     <ClCompile Include="lightclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lightshaderclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="modelclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="systemclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textureclass.cpp">
+    <ClCompile Include="cpuclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="particleclass.cpp">
+    <ClCompile Include="fpsclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="timerclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bitmapshaderclass.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="lightshaderclass.cpp">
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="particleShaderClass.cpp">
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="textureclass.cpp">
+      <Filter>Model Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="modelclass.cpp">
+      <Filter>Model Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="particleclass.cpp">
+      <Filter>Model Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,23 +86,35 @@
     <ClInclude Include="lightclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lightshaderclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modelclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="systemclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="textureclass.h">
+    <ClInclude Include="cpuclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="particleclass.h">
+    <ClInclude Include="fpsclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timerclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bitmapShaderClass.h">
-      <Filter>Header Files</Filter>
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="lightshaderclass.h">
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="particleshaderclass.h">
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="particleclass.h">
+      <Filter>Model Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="modelclass.h">
+      <Filter>Model Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="textureclass.h">
+      <Filter>Model Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +128,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="bitmap.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="particle.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="particle.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
