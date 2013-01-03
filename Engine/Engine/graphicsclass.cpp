@@ -82,7 +82,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud.png", L"../data/SnakeScale.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud3.png", L"../data/SnakeScale.jpg");
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -403,7 +403,7 @@ bool GraphicsClass::Render(float time)
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
 		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			m_Model2->GetTexture(), time, 0.0001f, m_phases[j]);
+			m_Model2->GetTexture(), time, 0.001f, m_phases[j]);
 		if(!result)
 		{
 			return false;

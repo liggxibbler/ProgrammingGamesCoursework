@@ -12,8 +12,8 @@ float4 ParticlePixelShader(PixelInput input) : SV_TARGET
 	float4 texCol;
 
 	texCol = particleTexture.Sample(sampleType, input.tex);
-	if(texCol.a < .3)
-		discard;
+	//if(texCol.a < .3)
+	//	discard;
 
 	return texCol;
 }
