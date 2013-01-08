@@ -818,3 +818,50 @@ void ModelClass::CalculateNormal(int i1, int i2, int i3)
 
 	return;
 }
+
+void ModelClass::SetSphericalTexCoords(ID3D11Device* device)
+{
+	//  Doesn't really work very well, because of the transition between
+	// 0 and 2pi not being possible to cover. i.e. the u coordinate goes
+	// from 2*pi - delta to zero, which causes an undesirable artefact.
+
+	// u = acos( p . i)
+	// v = acos( p . j)
+
+	float x, y, z;
+	float x1, y1, z1;
+	float mag;
+	
+	for(int i=0; i<m_vertexCount; i++)
+	{
+		x = m_model[i].x;
+		y = m_model[i].y;
+		z = m_model[i].z;
+
+		mag = sqrt(x*x + y*y + z*z);
+		
+		if(mag!=0)
+		{
+			y /= mag; // now cosine of angle vertex vector makes with with +y
+		}
+
+		m_model[i].tv = acos(y) / D3DX_PI;
+
+		mag = sqrt(x*x + z*z);
+
+		if(mag!=0)
+		{
+			x /= mag;
+		}
+
+		m_model[i].tu = acos(x);
+		m_model[i].tu /= 2 * D3DX_PI;
+
+		if(z <= 0)
+		{
+			m_model[i].tu = 1.0 - m_model[i].tu;
+		}
+	}
+
+	InitializeBuffers(device);
+}

@@ -14,6 +14,7 @@
 #include "lightshaderclass.h"
 #include "bitmapShaderClass.h"
 #include "particleshaderclass.h"
+#include "alphaFadeShaderClass.h"
 #include "lightclass.h"
 #include "timerclass.h"
 
@@ -61,6 +62,7 @@ private:
 	LightShaderClass* m_LightShader;
 	BitmapShaderClass* m_BitmapShader;
 	ParticleShaderClass* m_ParticleShader;
+	AlphaFadeShaderClass* m_alphaFadeShader;
 	LightClass* m_Light;
 	D3DXVECTOR3* m_positions;
 	float* m_phases;

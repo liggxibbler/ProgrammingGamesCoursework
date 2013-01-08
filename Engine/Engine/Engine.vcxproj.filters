@@ -69,6 +69,9 @@
     <ClCompile Include="particleclass.cpp">
       <Filter>Model Classes</Filter>
     </ClCompile>
+    <ClCompile Include="alphaFadeShaderClass.cpp">
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -116,6 +119,9 @@
     <ClInclude Include="textureclass.h">
       <Filter>Model Classes</Filter>
     </ClInclude>
+    <ClInclude Include="alphaFadeShaderClass.h">
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -134,6 +140,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="particle.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="alphafade.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="alphafade.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

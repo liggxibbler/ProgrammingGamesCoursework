@@ -81,6 +81,7 @@ public:
 	void Render(ID3D11DeviceContext*, D3DXMATRIX& worldMatrix);
 
 	bool CalculateBNT(ID3D11Device* device);
+	void SetSphericalTexCoords(ID3D11Device* device);
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture(int index);

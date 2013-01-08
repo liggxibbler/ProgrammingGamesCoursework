@@ -78,6 +78,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="alphaFadeShaderClass.cpp" />
     <ClCompile Include="bitmapshaderclass.cpp" />
     <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="cpuclass.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="timerclass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="alphaFadeShaderClass.h" />
     <ClInclude Include="bitmapShaderClass.h" />
     <ClInclude Include="cameraclass.h" />
     <ClInclude Include="cpuclass.h" />
@@ -113,6 +115,8 @@
     <ClInclude Include="timerclass.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="alphafade.ps" />
+    <None Include="alphafade.vs" />
     <None Include="bitmap.ps" />
     <None Include="bitmap.vs" />
     <None Include="light.ps" />

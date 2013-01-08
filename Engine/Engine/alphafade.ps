@@ -1,0 +1,31 @@
+Texture2D textures[2];
+SamplerState sampleType;
+
+cbuffer AlphaBuffer
+{
+	float alpha;
+	float3 padding;
+}
+
+struct PixelInput
+{
+	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
+};
+
+float4 AlphaFadePixelShader(PixelInput input) : SV_TARGET
+{
+	float4 tex1;
+	float4 tex2;
+	float4 color;
+
+	tex1 = textures[0].Sample(sampleType, input.tex);
+	tex2 = textures[1].Sample(sampleType, input.tex);
+	
+	tex1 *= alpha;
+	tex2 *= (1-alpha);
+
+	color = tex1 + tex2;
+
+	return color;
+}

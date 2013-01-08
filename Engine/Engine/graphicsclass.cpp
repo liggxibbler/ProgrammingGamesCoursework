@@ -77,13 +77,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Model2 = new ModelClass;
 	if(!m_Model2)
 	{
+
 		return false;
 	}
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
 	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud3.png", L"../data/SnakeScale.jpg");
-	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, 5, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
+	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, .7, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize billboard object.", L"Error", MB_OK);
@@ -101,12 +102,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain.png", L"../data/BTSn.png");
+	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain_day.png", L"../data/mountain_night.png");
+	//result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain_day.png", L"../data/BTSn.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize skydome object.", L"Error", MB_OK);
 		return false;
 	}
+
+	// m_Sphere->SetSphericalTexCoords(m_D3D->GetDevice()); // doesn't work well. described in method body
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -153,6 +157,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the bitmap shader object.
+	m_alphaFadeShader = new AlphaFadeShaderClass;
+	if(!m_alphaFadeShader)
+	{
+		return false;
+	}
+
+	// Initialize the light shader object.
+	result = m_alphaFadeShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	// Create the light object.
 	m_Light = new LightClass;
 	if(!m_Light)
@@ -174,10 +193,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	srand(time(NULL));
 	for(int i =0; i<100; i++)
 	{
-		x = floorf(i / 10)/10.0 * 40 - 20.0;
+		x = floorf(i / 10)/10.0 * 40.0 - 20.0;
 		//x = (rand() % 10) / 10.0 * 40 - 20.0;
 		y = 0;
-		z = (i % 10)/10.0 * 40 - 20.0;
+		z = (i % 10)/10.0 * 40.0 - 20.0;
 		//z = (rand() % 10) / 10.0 * 40 - 20.0;
 		m_positions[i].x = x;
 		m_positions[i].y = y;
@@ -225,6 +244,20 @@ void GraphicsClass::Shutdown()
 		m_BitmapShader->Shutdown();
 		delete m_BitmapShader;
 		m_BitmapShader = 0;
+	}
+
+	if(m_ParticleShader)
+	{
+		m_ParticleShader->Shutdown();
+		delete m_ParticleShader;
+		m_ParticleShader = 0;
+	}
+
+	if(m_alphaFadeShader)
+	{
+		m_alphaFadeShader->Shutdown();
+		delete m_alphaFadeShader;
+		m_alphaFadeShader = 0;
 	}
 
 	// Release the model object.
@@ -307,9 +340,8 @@ bool GraphicsClass::Render(float time)
 	//D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
 	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-		m_Sphere->GetTexture(), m_Light->GetDirection(), D3DXVECTOR4(1,1,1,1), D3DXVECTOR4(0,0,0,1), 
-								   m_Camera->GetPosition(),  D3DXVECTOR4(0,0,0,1), m_Light->GetSpecularPower());
+	result = m_alphaFadeShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		m_Sphere->GetTexture(), (1 + cos(time * .001f)) * .5);
 	if(!result)
 	{
 		return false;
