@@ -92,6 +92,7 @@
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="particleclass.cpp" />
     <ClCompile Include="particleShaderClass.cpp" />
+    <ClCompile Include="shaderBaseClass.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
     <ClCompile Include="timerclass.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="particleclass.h" />
     <ClInclude Include="particleshaderclass.h" />
+    <ClInclude Include="shaderBaseClass.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="timerclass.h" />

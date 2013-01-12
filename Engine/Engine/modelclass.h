@@ -75,13 +75,16 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*);
-	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*, WCHAR*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*); // from file
+	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*, WCHAR*); // cylinder
+	bool Initialize(ID3D11Device*, int, int, int, int, WCHAR*, WCHAR*); // quad mesh
+
 	void Shutdown();
 	void Render(ID3D11DeviceContext*, D3DXMATRIX& worldMatrix);
 
 	bool CalculateBNT(ID3D11Device* device);
-	void SetSphericalTexCoords(ID3D11Device* device);
+	void SetSphericalTexCoords(ID3D11Device* device); // not good
+	void ScaleTexCoords(float su, float sv, ID3D11Device*);
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture(int index);

@@ -10,9 +10,11 @@ public:
 	ParticleClass(ParticleClass&);
 	~ParticleClass();
 
-	bool Initialize(WCHAR*, int);//texture, number of quads, - maybe lifespan and movement pattern
+	bool Initialize(WCHAR*, int);// texture, number of quads
+								 // lifespan, movement pattern, emmitter position, emmission direction
+								 // maybe this should be a base class and some more specialized classes should be added?
 	void Frame();
-	void Render();
+	void Render(); //
 	void Shutdown();
 
 private:
@@ -21,6 +23,8 @@ private:
 private:
 	ModelClass* m_quad;
 	int m_quadCount;
+	float* m_params;
+	float* m_position;
 };
 
 #endif

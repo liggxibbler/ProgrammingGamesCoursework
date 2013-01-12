@@ -72,6 +72,9 @@
     <ClCompile Include="alphaFadeShaderClass.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
+    <ClCompile Include="shaderBaseClass.cpp">
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -120,6 +123,9 @@
       <Filter>Model Classes</Filter>
     </ClInclude>
     <ClInclude Include="alphaFadeShaderClass.h">
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderBaseClass.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
   </ItemGroup>

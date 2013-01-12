@@ -1,45 +1,31 @@
-#include "alphaFadeShaderClass.h"
+#include "shaderBaseClass.h"
 
-
-AlphaFadeShaderClass::AlphaFadeShaderClass()
+ShaderBaseClass::ShaderBaseClass()
 {
 	m_vertexShader = 0;
 	m_pixelShader = 0;
 	m_layout = 0;
 	m_matrixBuffer = 0;
-	m_alphaBuffer = 0;
 	m_sampleState = 0;
 }
 
-AlphaFadeShaderClass::AlphaFadeShaderClass(const AlphaFadeShaderClass& other)
+ShaderBaseClass::ShaderBaseClass(const ShaderBaseClass& other)
 {
 }
 
-AlphaFadeShaderClass::~AlphaFadeShaderClass()
+ShaderBaseClass::~ShaderBaseClass()
 {
 }
 
-bool AlphaFadeShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
-{
-	bool result;
-	result = InitializeShader(device, hwnd, L"../Engine/alphafade.vs", L"../Engine/alphafade.ps");
-	if(!result)
-	{
-		return false;
-	}
-	return true;
-}
-
-void AlphaFadeShaderClass::Shutdown()
+void ShaderBaseClass::Shutdown()
 {
 	ShutdownShader();
 }
 
-bool AlphaFadeShaderClass::Render(ID3D11DeviceContext* devCon, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView** texture, float alpha)
+bool ShaderBaseClass::Render(ID3D11DeviceContext* devCon, int indexCount)
 {
 	bool result;
-	result = SetShaderParameters(devCon, worldMatrix, viewMatrix, projectionMatrix, texture, alpha);
+	result = SetShaderParameters(devCon);
 	if(!result)
 	{
 		return false;
@@ -50,7 +36,7 @@ bool AlphaFadeShaderClass::Render(ID3D11DeviceContext* devCon, int indexCount, D
 	return true;
 }
 
-void AlphaFadeShaderClass::ShutdownShader()
+void ShaderBaseClass::ShutdownShader()
 {
 	if(m_vertexShader)
 	{
@@ -72,11 +58,7 @@ void AlphaFadeShaderClass::ShutdownShader()
 		m_matrixBuffer->Release();
 		m_matrixBuffer = 0;
 	}
-	if(m_alphaBuffer)
-	{
-		m_alphaBuffer->Release();
-		m_alphaBuffer = 0;
-	}
+	
 	if(m_sampleState)
 	{
 		m_sampleState->Release();
@@ -84,7 +66,7 @@ void AlphaFadeShaderClass::ShutdownShader()
 	}
 }
 
-bool AlphaFadeShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ShaderBaseClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -227,24 +209,10 @@ bool AlphaFadeShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCH
 		return false;
 	}
 
-	timeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	timeBufferDesc.ByteWidth = sizeof(AlphaBufferType);
-    timeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    timeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    timeBufferDesc.MiscFlags = 0;
-	timeBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&timeBufferDesc, NULL, &m_alphaBuffer);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
 	return true;
 }
 
-void AlphaFadeShaderClass::RenderShader(ID3D11DeviceContext* devCon, int indexCount)
+void ShaderBaseClass::RenderShader(ID3D11DeviceContext* devCon, int indexCount)
 {
 	devCon->IASetInputLayout(m_layout);
 
@@ -256,7 +224,7 @@ void AlphaFadeShaderClass::RenderShader(ID3D11DeviceContext* devCon, int indexCo
 	devCon->DrawIndexed(indexCount, 0, 0);
 }
 
-void AlphaFadeShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+void ShaderBaseClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
 	unsigned long bufferSize, i;
@@ -289,72 +257,4 @@ void AlphaFadeShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HW
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
 	return;
-}
-
-bool AlphaFadeShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView** texture, float alpha)
-{
-	HRESULT result;
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber;
-	MatrixBufferType* dataPtr;
-	AlphaBufferType* alphaPtr;
-
-	// Transpose the matrices to prepare them for the shader.
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
-
-	// Lock the constant buffer so it can be written to.
-	result = devCon->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
-	// Get a pointer to the data in the constant buffer.
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
-
-	// Copy the matrices into the constant buffer.
-	dataPtr->world = worldMatrix;
-	dataPtr->view = viewMatrix;
-	dataPtr->projection = projectionMatrix;
-
-	// Unlock the constant buffer.
-    devCon->Unmap(m_matrixBuffer, 0);
-
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
-
-	// Now set the constant buffer in the vertex shader with the updated values.
-    devCon->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-
-	////////////// TIME BUFFER
-	// Lock the constant buffer so it can be written to.
-	result = devCon->Map(m_alphaBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
-	// Get a pointer to the data in the constant buffer.
-	alphaPtr = (AlphaBufferType*)mappedResource.pData;
-
-	// Copy the matrices into the constant buffer.
-	alphaPtr->alpha = alpha;
-	alphaPtr->padding = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-	// Unlock the constant buffer.
-    devCon->Unmap(m_alphaBuffer, 0);
-
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
-
-	// Now set the constant buffer in the vertex shader with the updated values.
-    devCon->PSSetConstantBuffers(bufferNumber, 1, &m_alphaBuffer);
-	
-	// Set shader texture resource in the pixel shader.
-	devCon->PSSetShaderResources(0, 2, texture);
-
-	return true;
 }

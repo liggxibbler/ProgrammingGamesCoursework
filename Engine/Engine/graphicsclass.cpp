@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/ground.png", L"../data/floor2_ddn.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 500, L"../data/grass.png", L"../data/floor2_ddn.jpg");
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
 	if(!result)
 	{
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain_day.png", L"../data/mountain_night.png");
+	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/day.png", L"../data/night.png");
 	//result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain_day.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -111,6 +111,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// m_Sphere->SetSphericalTexCoords(m_D3D->GetDevice()); // doesn't work well. described in method body
+	m_Sphere->ScaleTexCoords(0.5f, 1.0f, m_D3D->GetDevice());
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -207,10 +208,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	//m_Light->SetAmbientColor(0.0f, 0.0f, 0.0f, 1.0f);
-	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, -1.0f, 1.0f);
-	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
-	m_Light->SetSpecularPower(1.0f);
+	m_Light->SetDiffuseColor(0.4f, 0.4f, 0.4f, 1.0f);
+	m_Light->SetDirection(1.0f, 0.0f, 0.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(10.0f);
 
 	return true;
 }
@@ -291,10 +292,18 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 {
 	bool result;
 	static float time = 0.0f;
+	
+	static D3DXMATRIX tempMat;
+	static D3DXVECTOR3 tempVec;
 
 	time += guInf.time;
 
 	m_Camera->Frame(guInf.mouseDiffX, guInf.mouseDiffY, guInf.wKey, guInf.aKey, guInf.sKey, guInf.dKey);
+
+	tempVec = D3DXVECTOR3(m_Light->GetDirection());
+	D3DXMatrixRotationZ(&tempMat, guInf.time * .001f);
+	D3DXVec3TransformCoord(&tempVec, &tempVec, &tempMat);
+	m_Light->SetDirection(tempVec.x, tempVec.y, tempVec.z);
 
 	// Render the graphics scene.
 	result = Render(time);
@@ -339,13 +348,26 @@ bool GraphicsClass::Render(float time)
 	m_Sphere->Render(m_D3D->GetDeviceContext(), worldMatrix);
 	//D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
-	// Render the model using the light shader.
+	// Render the model using the alpha shader.
 	result = m_alphaFadeShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 		m_Sphere->GetTexture(), (1 + cos(time * .001f)) * .5);
+	
+	/*result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, projectionMatrix, 
+		m_Sphere->GetTexture());*/
+	
 	if(!result)
 	{
 		return false;
 	}
+
+	//// Render the model using the light shader.
+	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+	//	m_Sphere->GetTexture(), D3DXVECTOR3(0,0,0), D3DXVECTOR4(1.0, 1.0, 1.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f),  
+	//	D3DXVECTOR3(0.0f, 0.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f), 0.0f);
+	//if(!result)
+	//{
+	//	return false;
+	//}
 
 	m_D3D->TurnZBufferOn();
 	m_D3D->CullBackFace();
@@ -366,14 +388,18 @@ bool GraphicsClass::Render(float time)
 								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 
-	/*m_D3D->TurnZBufferOff();
+	/*m_D3D->CullFrontFace();
+	m_D3D->TurnZBufferOff();
 	result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, projectionMatrix, 
-								   m_Model->GetTexture());*/
+								   m_Model->GetTexture());
+	m_D3D->CullBackFace();
+	m_D3D->TurnZBufferOn();*/
+
 	if(!result)
 	{
 		return false;
 	}
-	//m_D3D->TurnZBufferOn();
+	
 
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 

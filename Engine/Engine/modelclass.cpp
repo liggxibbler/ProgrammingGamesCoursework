@@ -865,3 +865,56 @@ void ModelClass::SetSphericalTexCoords(ID3D11Device* device)
 
 	InitializeBuffers(device);
 }
+
+void ModelClass::ScaleTexCoords(float su, float sv, ID3D11Device* device)
+{
+	for(int i=0;i<m_vertexCount; i++)
+	{
+		m_model[i].tu *= su;
+		m_model[i].tv *= sv;
+	}
+	InitializeBuffers(device);
+}
+
+bool ModelClass::Initialize(ID3D11Device*, int xCount, int yCount, int uTexScale, int vTexScale, WCHAR*, WCHAR*)
+{
+	/*float xStep = 1.0f / xCount;
+	float yStep = 1.0f / yCount;
+	ModelType** grid;
+
+	m_vertexCount = (xCount + 1)*(yCount + 1)*2;
+	m_indexCount = xCount * yCount * 6;
+
+	m_model = new ModelType[m_vertexCount];
+
+	grid = new ModelType*[yCount+1];
+	for(int i=0;i<yCount+1;i++)
+	{
+		grid[i] = new ModelType[xCount+1];
+	}
+
+	for(int i=0; i < yCount + 1;i++)
+	{
+		for(int j=0; j < xCount + 1;j++)
+		{
+			grid[i][j].x = j * xStep;
+			grid[i][j].y = 0.0f;
+			grid[i][j].z = -i * yStep;
+
+			grid[i][j].nx = 0.0f;
+			grid[i][j].ny = 1.0f;
+			grid[i][j].nz = 0.0f;
+
+			grid[i][j].tu = j * xStep * uTexScale;
+			grid[i][j].tv = i * yStep * vTexScale;
+
+			grid[i][j].bx = 0.0f;
+			grid[i][j].by = 0.0f;
+			grid[i][j].bz = -1.0f;
+
+			grid[i][j].tx = 1.0f;
+			grid[i][j].ty = 0.0f;
+			grid[i][j].tz = 0.0f;
+		}
+	}*/
+}
