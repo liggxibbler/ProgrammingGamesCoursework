@@ -12,6 +12,7 @@ GraphicsClass::GraphicsClass()
 	m_Model2 = 0;
 	m_Sphere = 0;
 	m_LightShader = 0;
+	m_alphaFadeShader = 0;
 	m_Light = 0;
 	m_positions = 0;
 }
@@ -65,7 +66,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 500, L"../data/grass.png", L"../data/floor2_ddn.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 20, L"../data/grass.png", L"../data/floor2_ddn.jpg");
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
 	if(!result)
 	{
@@ -83,7 +84,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud3.png", L"../data/SnakeScale.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/fire.png", L"../data/SnakeScale.jpg");
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, .7, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -449,11 +450,11 @@ bool GraphicsClass::Render(float time)
 		int j = 99 - zPos[i].i;
 		//int j = i;
 
-		m_Camera->GetBillboardAlign(cameraRot, m_positions[j]);
+		m_Camera->GetBillboardAlign(cameraRot);
 		//m_D3D->GetWorldMatrix(cameraRot);
 
 		m_D3D->GetWorldMatrix(worldMatrix);
-		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
 		D3DXMatrixTranslation(&temp, m_positions[j].x, 0, m_positions[j].z);
 		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &temp);
 		
@@ -461,7 +462,7 @@ bool GraphicsClass::Render(float time)
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
 		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			m_Model2->GetTexture(), time, 0.001f, m_phases[j]);
+			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Model2->GetTexture(), time, 0.001f, m_phases[j], 3.0);
 		if(!result)
 		{
 			return false;

@@ -181,24 +181,20 @@ void CameraClass::Frame(int xMouse, int yMouse, bool w, bool a, bool s, bool d)
 	m_position += step * at;
 }
 
-void CameraClass::GetBillboardAlign(D3DXMATRIX& out, D3DXVECTOR3& pos)
+void CameraClass::GetBillboardAlign(D3DXMATRIX& out)
 {
-	D3DXVECTOR3 at, right;
-	float mag;
+	D3DXVECTOR3 at = m_direction, right;
 
-	//at = m_position - pos;
-	at = -m_direction;
-	mag = sqrtf(at.x*at.x + at.y*at.y + at.z*at.z);
-	at /= -mag;
+	D3DXVec3Normalize(&at, &at);
 
-	right.x = -(at.y*m_up.z - at.z*m_up.y);
-	right.y = -(at.z*m_up.x - at.x*m_up.z);
-	right.z = -(at.x*m_up.y - at.y*m_up.x);
+	D3DXVec3Cross(&right, &m_up, &at);
 
-	mag = sqrtf(right.x*right.x + right.y*right.y + right.z*right.z);
-	right /= mag;
-
-	out = D3DXMATRIX(right.x, right.y, right.z, 0, m_up.x, m_up.y, m_up.z, 0, at.x, at.y, at.z, 0, 0, 0, 0, 1);
+	D3DXVec3Normalize(&right, &right);
+	
+	out = D3DXMATRIX(right.x, right.y, right.z, 0,
+					 m_up.x , m_up.y , m_up.z , 0,
+					 at.x   , at.y   , at.z   , 0,
+					 0      , 0      , 0      , 1);
 }
 
 void CameraClass::GetBillboardXZ(D3DXMATRIX& out, D3DXVECTOR3& pos)

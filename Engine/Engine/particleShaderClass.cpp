@@ -8,6 +8,7 @@ ParticleShaderClass::ParticleShaderClass()
 	m_layout = 0;
 	m_matrixBuffer = 0;
 	m_timeBuffer = 0;
+	m_cameraBuffer = 0;
 	m_sampleState = 0;
 }
 
@@ -36,10 +37,12 @@ void ParticleShaderClass::Shutdown()
 }
 
 bool ParticleShaderClass::Render(ID3D11DeviceContext* devCon, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView** texture, float time, float frequency, float phase)
+	D3DXMATRIX projectionMatrix, D3DXMATRIX billboardMatrix, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp,
+	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life)
 {
 	bool result;
-	result = SetShaderParameters(devCon, worldMatrix, viewMatrix, projectionMatrix, texture, time, frequency, phase);
+	result = SetShaderParameters(devCon, worldMatrix, viewMatrix, projectionMatrix, billboardMatrix, camPosition, camAt, camUp,
+		texture, time, frequency, phase, life);
 	if(!result)
 	{
 		return false;
@@ -77,6 +80,11 @@ void ParticleShaderClass::ShutdownShader()
 		m_timeBuffer->Release();
 		m_timeBuffer = 0;
 	}
+	if(m_cameraBuffer)
+	{
+		m_cameraBuffer->Release();
+		m_cameraBuffer = 0;
+	}
 	if(m_sampleState)
 	{
 		m_sampleState->Release();
@@ -95,6 +103,7 @@ bool ParticleShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
     D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC timeBufferDesc;
+	D3D11_BUFFER_DESC cameraBufferDesc;
 
 	// Initialize the pointers this function will use to null.
 	errorMessage = 0;
@@ -241,6 +250,20 @@ bool ParticleShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 		return false;
 	}
 
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
+    cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
+	if(FAILED(result))
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -292,18 +315,21 @@ void ParticleShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 }
 
 bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView** texture, float time, float frequency, float phase)
+	D3DXMATRIX projectionMatrix, D3DXMATRIX billboardMatrix, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp,
+	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 	TimeBufferType* timePtr;
+	CameraBufferType* camPtr;
 
 	// Transpose the matrices to prepare them for the shader.
 	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	D3DXMatrixTranspose(&billboardMatrix, &billboardMatrix);
 
 	// Lock the constant buffer so it can be written to.
 	result = devCon->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -319,6 +345,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXM
 	dataPtr->world = worldMatrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
+	dataPtr->billboard = billboardMatrix;
 
 	// Unlock the constant buffer.
     devCon->Unmap(m_matrixBuffer, 0);
@@ -344,7 +371,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXM
 	timePtr->time = time;
 	timePtr->frequency = frequency;
 	timePtr->phase = phase;
-	timePtr->time_padding = 0.0f;
+	timePtr->life = life;
 
 	// Unlock the constant buffer.
     devCon->Unmap(m_timeBuffer, 0);
@@ -355,6 +382,34 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXM
 	// Now set the constant buffer in the vertex shader with the updated values.
     devCon->VSSetConstantBuffers(bufferNumber, 1, &m_timeBuffer);
 	
+	////////////// CAMERA BUFFER
+	// Lock the constant buffer so it can be written to.
+	result = devCon->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if(FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	camPtr = (CameraBufferType*)mappedResource.pData;
+
+	// Copy the matrices into the constant buffer.
+	camPtr->position = camPosition;
+	camPtr->at = camAt;
+	camPtr->up = camUp;
+	camPtr->padding = D3DXVECTOR3(0,0,0);
+
+	// Unlock the constant buffer.
+    devCon->Unmap(m_cameraBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 2;
+
+	// Now set the constant buffer in the vertex shader with the updated values.
+    devCon->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
+
+	////////////// PIXEL SHADER
+
 	// Set shader texture resource in the pixel shader.
 	devCon->PSSetShaderResources(0, 1, texture);
 
