@@ -13,8 +13,11 @@ GraphicsClass::GraphicsClass()
 	m_Sphere = 0;
 	m_LightShader = 0;
 	m_alphaFadeShader = 0;
+	m_testShader = 0;
 	m_Light = 0;
 	m_positions = 0;
+	m_phases = 0;
+	m_speeds = 0;
 }
 
 
@@ -84,7 +87,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/fire.png", L"../data/SnakeScale.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud3.png", L"../data/SnakeScale.jpg");
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, .7, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -144,14 +147,29 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the bitmap shader object.
+	// Create the test shader object.
+	m_testShader = new TestGenericShader;
+	if(!m_testShader)
+	{
+		return false;
+	}
+
+	// Initialize the test shader object.
+	result = m_testShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the particle shader object.
 	m_ParticleShader = new ParticleShaderClass;
 	if(!m_ParticleShader)
 	{
 		return false;
 	}
 
-	// Initialize the light shader object.
+	// Initialize the particle shader object.
 	result = m_ParticleShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
@@ -159,14 +177,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the bitmap shader object.
+	// Create the alpha shader object.
 	m_alphaFadeShader = new AlphaFadeShaderClass;
 	if(!m_alphaFadeShader)
 	{
 		return false;
 	}
 
-	// Initialize the light shader object.
+	// Initialize the alpha shader object.
 	result = m_alphaFadeShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
@@ -192,6 +210,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		return false;
 	}
+	m_speeds = new float[100];
+	if(!m_speeds)
+	{
+		return false;
+	}
 	srand(time(NULL));
 	for(int i =0; i<100; i++)
 	{
@@ -204,6 +227,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		m_positions[i].y = y;
 		m_positions[i].z = z;
 		m_phases[i] = (rand() % 100)/100.0 * 2 * D3DX_PI;
+		m_speeds[i] = (rand() % 100)/100.0 * 2 * D3DX_PI;
 	}
 
 	// Initialize the light object.
@@ -226,6 +250,18 @@ void GraphicsClass::Shutdown()
 		m_positions = 0;
 	}
 	
+	if(m_phases)
+	{
+		delete [] m_phases;
+		m_phases = 0;
+	}
+
+	if(m_speeds)
+	{
+		delete [] m_speeds;
+		m_speeds = 0;
+	}
+
 	// Release the light object.
 	if(m_Light)
 	{
@@ -239,6 +275,13 @@ void GraphicsClass::Shutdown()
 		m_LightShader->Shutdown();
 		delete m_LightShader;
 		m_LightShader = 0;
+	}
+
+	if(m_testShader)
+	{
+		m_testShader->Shutdown();
+		delete m_testShader;
+		m_testShader = 0;
 	}
 
 	if(m_BitmapShader)
@@ -384,17 +427,17 @@ bool GraphicsClass::Render(float time)
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
 
-	// Render the model using the light shader.
+	/*/ Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-
-	/*m_D3D->CullFrontFace();
-	m_D3D->TurnZBufferOff();
-	result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, projectionMatrix, 
-								   m_Model->GetTexture());
-	m_D3D->CullBackFace();
-	m_D3D->TurnZBufferOn();*/
+	//*/
+	
+	m_testShader->PushMatrix(&projectionMatrix);
+	m_testShader->PushMatrix(&viewMatrix);
+	m_testShader->PushMatrix(&worldMatrix);
+	m_testShader->PushResourceView(m_Model->GetTexture()[0]);
+	result = m_testShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount());
 
 	if(!result)
 	{
@@ -445,6 +488,7 @@ bool GraphicsClass::Render(float time)
 
 
 	m_D3D->TurnAlphaBlendingOn();
+	//m_D3D->TurnZBufferOff();
 	for(int i = 0; i< 100; i++)
 	{
 		int j = 99 - zPos[i].i;
@@ -462,7 +506,7 @@ bool GraphicsClass::Render(float time)
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
 		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Model2->GetTexture(), time, 0.001f, m_phases[j], 3.0);
+			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Model2->GetTexture(), time, m_speeds[j], m_phases[j], 2.0);
 		if(!result)
 		{
 			return false;
@@ -470,6 +514,7 @@ bool GraphicsClass::Render(float time)
 
 	}
 	m_D3D->TurnAlphaBlendingOff();	
+	m_D3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

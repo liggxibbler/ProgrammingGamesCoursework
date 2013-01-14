@@ -73,6 +73,7 @@ PixelInput RotoZoom(VertexInput input)
 	PixelInput output;
 	float sFactor;
 
+	output.position = input.position;
 	sFactor = Scale(time, frequency, phase);
 
 	output.position.xyz = 3 * sFactor * input.position.xyz;
@@ -91,12 +92,91 @@ PixelInput RotoZoom(VertexInput input)
 PixelInput Rain(VertexInput input)
 {
 	PixelInput output;
+	float v, y;
 	
+	v = .07;//a * time + frequency;
+	y = v * time + phase*4;
+
+	if(y>20)
+	{
+		y = y%20;
+	}
+
+	y = 20 - y;
+
 	output.position = input.position;
+	//////////////////////////////////////////////////
+	// The problem below was that it was doing this :
+	// VERY WRONG output.position.y = y
+	// What it did was basically squash the whole polygon
+	// to a line segment, with all three vertices at the same y
+	// value. 
+	output.position.y = output.position.y + y;
+	output.position = mul(output.position, billboardMatrix);
+	output.alpha = 1.0;
 	
 	return output;
 }
 
+PixelInput Fire(VertexInput input)
+{
+	PixelInput output;
+	
+	float y, t, s;
+	
+	t = (time * .001 + phase) % life;
+	
+	//y = frequency * t * 10;
+
+	output.position = input.position;
+	output.position.xyz *= t * 10;
+	//output.position.y += y;
+	output.position = mul(output.position, billboardMatrix);
+
+	output.alpha = (life - t) * .2;
+
+	return output;
+}
+
+PixelInput Spray(VertexInput input)
+{
+	PixelInput output;
+	
+	float x, y, z, t;
+	
+	t = (time * .001 + phase) % life;
+
+	y = .5 * -9.8 * t * t + frequency * t;
+	x = 2 * t * cos(frequency);
+	z = 2 * t * sin(frequency);
+
+	output.position = input.position;
+	output.position.xyz *= t / life;
+	
+	output.position = mul(output.position, billboardMatrix);
+
+	output.position.y += y;
+	output.position.x += x;
+	output.position.z += z;
+
+	//output.alpha = (5 - t) * .2;
+	output.alpha = (life - t) /life;
+
+	return output;
+}
+
+PixelInput WorldViewProjection(PixelInput input)
+{
+	PixelInput output;
+	
+	output.position = input.position;
+
+	output.position = mul(output.position, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
+
+	return output;
+}
 
 PixelInput ParticleVertexShader(VertexInput input)
 {
@@ -104,8 +184,12 @@ PixelInput ParticleVertexShader(VertexInput input)
 
 	input.position.w = 1.0f;
 
-	output = RotoZoom(input);
+	//output = RotoZoom(input);
 	//output = Rain(input);
+	output = Fire(input);
+	//output = Spray(input);
+	
+	//output = WorldViewProjection(output);
 
 	output.position = mul(output.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
