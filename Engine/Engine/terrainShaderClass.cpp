@@ -36,7 +36,7 @@ void TerrainShaderClass::Shutdown()
 bool TerrainShaderClass::Render(ID3D11DeviceContext* devCon, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix , D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView** texture)
 {
 	bool result;
-	result = SetShaderParameters(devCon, worldMatrix, projectionMatrix, viewMatrix, texture);
+	result = SetShaderParameters(devCon, worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
@@ -228,7 +228,7 @@ void TerrainShaderClass::RenderShader(ID3D11DeviceContext* devCon, int indexCoun
 	devCon->PSSetShader(m_pixelShader, NULL, 0);
 	devCon->VSSetShader(m_vertexShader, NULL, 0);
 	
-	//devCon->VSSetSamplers(0, 1, &m_sampleState);
+	devCon->VSSetSamplers(0, 1, &m_sampleState);
 	devCon->PSSetSamplers(0, 1, &m_sampleState);
 	
 	devCon->DrawIndexed(indexCount, 0, 0);

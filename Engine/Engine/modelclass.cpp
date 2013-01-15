@@ -904,7 +904,7 @@ bool ModelClass::Initialize(ID3D11Device* device, int xCount, int yCount, float 
 
 
 	// Load in the model data,
-	result = LoadQuadMesh(xCount, yCount, 1, 1);
+	result = LoadQuadMesh(xCount, yCount, uTexScale, vTexScale);
 	if(!result)
 	{
 		return false;
@@ -950,16 +950,19 @@ bool ModelClass::LoadQuadMesh(int rows, int cols, float uScale, float vScale)
 		}
 	}
 
+	float r;
+
 	for(int i=0; i<rows+1;i++)
 	{
 		for(int j=0; j<cols+1;j++)
 		{
 			grid[i][j].x = (float)i/(float)rows - .5f;
-			grid[i][j].y = 0;
 			grid[i][j].z = 0.5f - (float)j/(float)cols;
+			r = sqrt(grid[i][j].x*grid[i][j].x + grid[i][j].z * grid[i][j].z);
+			grid[i][j].y = sinf(r * 30) * cosf(r * 30) * .05;
 
-			grid[i][j].tu = (float)i/(float)rows;
-			grid[i][j].tv = (float)j/(float)cols;
+			grid[i][j].tu = (float)i/(float)rows*uScale;
+			grid[i][j].tv = (float)j/(float)cols*vScale;
 		}
 	}
 	

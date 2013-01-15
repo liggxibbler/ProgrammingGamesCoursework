@@ -92,7 +92,7 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* heightmap, WCHAR* pri
 
 	if(secondary != NULL)
 	{
-		result = D3DX11CreateShaderResourceViewFromFile(device, primary, NULL, NULL, &(m_texture[2]), NULL);
+		result = D3DX11CreateShaderResourceViewFromFile(device, secondary, NULL, NULL, &(m_texture[2]), NULL);
 		if(FAILED(result))
 		{
 			return false;

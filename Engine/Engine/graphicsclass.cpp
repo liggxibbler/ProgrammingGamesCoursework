@@ -76,12 +76,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Initialize the model object.
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 20, L"../data/rock.png", L"../data/floor2_ddn.jpg");
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
-	result = m_Model->Initialize(m_D3D->GetDevice(), 64, 64, 1, 1, L"../data/hmap.png", L"../data/rock.png", L"../data/grass.png", L"../data/dirt.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 64, 64, 1, 1, L"../data/hmapbw.png", L"../data/rock.png", L"../data/grass.png", L"../data/dirt.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
 		return false;
 	}
+
+	m_Model->CalculateBNT(m_D3D->GetDevice());
 
 	// Create the model object.
 	m_Model2 = new ModelClass;
@@ -430,7 +432,7 @@ bool GraphicsClass::Render(float time)
 	}
 	//*/
 
-	/*// Render the model using the light shader.
+	/*// Render the skydome using the light shader.
 	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 	//	m_Sphere->GetTexture(), D3DXVECTOR3(0,0,0), D3DXVECTOR4(1.0, 1.0, 1.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f),  
 	//	D3DXVECTOR3(0.0f, 0.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f), 0.0f);
@@ -459,10 +461,10 @@ bool GraphicsClass::Render(float time)
 								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	//*/
-	
-	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
 
 	//*/ Render using terrain shader
+	m_D3D->GetWorldMatrix(worldMatrix);
+	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
 	result = m_terrainShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 								   m_Model->GetTexture());
 	//*/

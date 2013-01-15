@@ -22,7 +22,7 @@ float4 HeightmapPixelShader(PixelInput input) : SV_TARGET
 	color = (input.alpha1 * tex1) + ((1-input.alpha1) * color);
 	color = (input.alpha2 * tex2) + ((1-input.alpha2) * color);
 	
-	color = tex2;
+	//color = float4(1,0,0,1);
 
 	return color;
 }
