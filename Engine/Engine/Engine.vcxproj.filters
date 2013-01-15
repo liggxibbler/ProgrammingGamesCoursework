@@ -78,6 +78,9 @@
     <ClCompile Include="testGenericShader.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
+    <ClCompile Include="terrainShaderClass.cpp">
+      <Filter>Shader Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -132,6 +135,9 @@
       <Filter>Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="testGenericShader.h">
+      <Filter>Shader Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="terrainShaderClass.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
   </ItemGroup>

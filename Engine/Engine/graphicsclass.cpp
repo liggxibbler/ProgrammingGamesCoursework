@@ -17,6 +17,7 @@ GraphicsClass::GraphicsClass()
 	m_BitmapShader = 0;
 	m_ParticleShader = 0;
 	m_testShader = 0;
+	m_terrainShader = 0;
 	
 	m_Light = 0;
 	m_positions = 0;
@@ -144,7 +145,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Initialize the light shader object.
+	// Initialize the bitmap shader object.
 	result = m_BitmapShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
@@ -191,6 +192,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the alpha shader object.
 	result = m_alphaFadeShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the terrain shader object.
+	m_terrainShader = new TerrainShaderClass;
+	if(!m_terrainShader)
+	{
+		return false;
+	}
+
+	// Initialize the terrain shader object.
+	result = m_terrainShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
@@ -282,6 +298,13 @@ void GraphicsClass::Shutdown()
 		m_LightShader = 0;
 	}
 
+	if(m_terrainShader)
+	{
+		m_terrainShader->Shutdown();
+		delete m_terrainShader;
+		m_terrainShader = 0;
+	}
+
 	if(m_testShader)
 	{
 		m_testShader->Shutdown();
@@ -368,7 +391,7 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 bool GraphicsClass::Render(float time)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	D3DXMATRIX cameraRot, temp;
+	D3DXMATRIX cameraRot, tempMatrix;
 	D3DXVECTOR3 up, right, at, cameraPos;
 
 	bool result;
@@ -425,7 +448,7 @@ bool GraphicsClass::Render(float time)
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
-	D3DXMatrixScaling(&worldMatrix, 200, 0, 200);
+	//D3DXMatrixScaling(&worldMatrix, 200, 200, 200);
 	//D3DXMatrixRotationX(&worldMatrix, 90);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
@@ -437,6 +460,13 @@ bool GraphicsClass::Render(float time)
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	//*/
 	
+	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
+
+	//*/ Render using terrain shader
+	result = m_terrainShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+								   m_Model->GetTexture());
+	//*/
+
 	/*/
 	m_testShader->ClearStacks();
 	m_testShader->PushMatrix(&projectionMatrix);
@@ -469,11 +499,11 @@ bool GraphicsClass::Render(float time)
 	zSort zPos[100], zTemp;
 	float zi, zj;
 	D3DXVECTOR3 tempVec;
-	m_Camera->GetViewMatrix(temp);
+	m_Camera->GetViewMatrix(tempMatrix);
 	
 	for(int i =0; i<100; i++)
 	{
-		D3DXVec3TransformCoord(&tempVec, &m_positions[i], &temp);
+		D3DXVec3TransformCoord(&tempVec, &m_positions[i], &tempMatrix);
 		zPos[i].z = tempVec.z;
 		zPos[i].i = i;
 	}
@@ -506,8 +536,8 @@ bool GraphicsClass::Render(float time)
 
 		m_D3D->GetWorldMatrix(worldMatrix);
 		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
-		D3DXMatrixTranslation(&temp, m_positions[j].x, 0, m_positions[j].z);
-		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &temp);
+		D3DXMatrixTranslation(&tempMatrix, m_positions[j].x, 0, m_positions[j].z);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &tempMatrix);
 		
 
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
