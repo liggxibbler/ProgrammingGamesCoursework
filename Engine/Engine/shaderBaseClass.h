@@ -42,6 +42,7 @@ public:
 	void PushResourceView(ID3D11ShaderResourceView* resourceView);
 	void PushFloat(float value);
 	void PushVec3(D3DXVECTOR3* vec3);
+	void ClearStacks();
 
 protected:
 	virtual bool SetShaderParameters(ID3D11DeviceContext*) = 0;

@@ -123,6 +123,8 @@
     <None Include="alphafade.vs" />
     <None Include="bitmap.ps" />
     <None Include="bitmap.vs" />
+    <None Include="heightmap.ps" />
+    <None Include="heightmap.vs" />
     <None Include="light.ps" />
     <None Include="light.vs" />
     <None Include="particle.ps" />

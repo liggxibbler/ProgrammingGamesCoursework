@@ -278,6 +278,27 @@ bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename, WCHAR* norma
 	return true;
 }
 
+bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* heightmap, WCHAR* primary, WCHAR* secondary, WCHAR* tertiary)
+{
+	bool result;
+
+	// Create the texture object.
+	m_Texture = new TextureClass;
+	if(!m_Texture)
+	{
+		return false;
+	}
+
+	// Initialize the texture object.
+	result = m_Texture->Initialize(device, heightmap, primary, secondary, tertiary);
+	if(!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 void ModelClass::ReleaseTexture()
 {
@@ -876,45 +897,125 @@ void ModelClass::ScaleTexCoords(float su, float sv, ID3D11Device* device)
 	InitializeBuffers(device);
 }
 
-bool ModelClass::Initialize(ID3D11Device*, int xCount, int yCount, int uTexScale, int vTexScale, WCHAR*, WCHAR*)
+bool ModelClass::Initialize(ID3D11Device* device, int xCount, int yCount, float uTexScale, float vTexScale,
+	WCHAR* heightmap, WCHAR* primary, WCHAR* secondary, WCHAR* tertiary)
 {
-	/*float xStep = 1.0f / xCount;
-	float yStep = 1.0f / yCount;
-	ModelType** grid;
+	bool result;
 
-	m_vertexCount = (xCount + 1)*(yCount + 1)*2;
-	m_indexCount = xCount * yCount * 6;
 
-	m_model = new ModelType[m_vertexCount];
-
-	grid = new ModelType*[yCount+1];
-	for(int i=0;i<yCount+1;i++)
+	// Load in the model data,
+	result = LoadQuadMesh(xCount, yCount, 1, 1);
+	if(!result)
 	{
-		grid[i] = new ModelType[xCount+1];
+		return false;
 	}
 
-	for(int i=0; i < yCount + 1;i++)
+
+	// Initialize the vertex and index buffers.
+	result = InitializeBuffers(device);
+	if(!result)
 	{
-		for(int j=0; j < xCount + 1;j++)
+		return false;
+	}
+
+	//CalculateBNT(device);
+
+	// Load the texture for this model.
+	result = LoadTexture(device, heightmap, primary, secondary, tertiary);
+	if(!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ModelClass::LoadQuadMesh(int rows, int cols, float uScale, float vScale)
+{
+	m_vertexCount = rows * cols * 6;
+	m_indexCount = m_vertexCount;
+
+	ModelType** grid = new ModelType*[rows+1];
+	if(!grid)
+	{
+		return false;
+	}
+
+	for(int i=0; i<rows+1; i++)
+	{
+		grid[i] = new ModelType[cols+1];
+		if(!grid[i])
 		{
-			grid[i][j].x = j * xStep;
-			grid[i][j].y = 0.0f;
-			grid[i][j].z = -i * yStep;
-
-			grid[i][j].nx = 0.0f;
-			grid[i][j].ny = 1.0f;
-			grid[i][j].nz = 0.0f;
-
-			grid[i][j].tu = j * xStep * uTexScale;
-			grid[i][j].tv = i * yStep * vTexScale;
-
-			grid[i][j].bx = 0.0f;
-			grid[i][j].by = 0.0f;
-			grid[i][j].bz = -1.0f;
-
-			grid[i][j].tx = 1.0f;
-			grid[i][j].ty = 0.0f;
-			grid[i][j].tz = 0.0f;
+			return false;
 		}
-	}*/
+	}
+
+	for(int i=0; i<rows+1;i++)
+	{
+		for(int j=0; j<cols+1;j++)
+		{
+			grid[i][j].x = (float)i/(float)rows - .5f;
+			grid[i][j].y = 0;
+			grid[i][j].z = 0.5f - (float)j/(float)cols;
+
+			grid[i][j].tu = (float)i/(float)rows;
+			grid[i][j].tv = (float)j/(float)cols;
+		}
+	}
+	
+	m_model = new ModelType[m_vertexCount];
+	if(!m_model)
+	{
+		return false;
+	}
+
+	int index = 0;
+
+	for(int i=1; i<=cols-1;i++)
+	{
+		for(int j=0; j<rows-1;j++)
+		{
+			// first tri
+
+			m_model[index].x = grid[i][j].x;
+			m_model[index].y = grid[i][j].y;
+			m_model[index].z = grid[i][j].z;
+			m_model[index].tu = grid[i][j].tu;
+			m_model[index++].tv = grid[i][j].tv;
+
+			m_model[index].x = grid[i-1][j+1].x;
+			m_model[index].y = grid[i-1][j+1].y;
+			m_model[index].z = grid[i-1][j+1].z;
+			m_model[index].tu = grid[i-1][j+1].tu;
+			m_model[index++].tv = grid[i-1][j+1].tv;
+
+			m_model[index].x = grid[i-1][j].x;
+			m_model[index].y = grid[i-1][j].y;
+			m_model[index].z = grid[i-1][j].z;
+			m_model[index].tu = grid[i-1][j].tu;
+			m_model[index++].tv = grid[i-1][j].tv;
+
+			// second tri
+
+			m_model[index].x = grid[i][j].x;
+			m_model[index].y = grid[i][j].y;
+			m_model[index].z = grid[i][j].z;
+			m_model[index].tu = grid[i][j].tu;
+			m_model[index++].tv = grid[i][j].tv;
+
+			m_model[index].x = grid[i][j+1].x;
+			m_model[index].y = grid[i][j+1].y;
+			m_model[index].z = grid[i][j+1].z;
+			m_model[index].tu = grid[i][j+1].tu;
+			m_model[index++].tv = grid[i][j+1].tv;
+
+			m_model[index].x = grid[i-1][j+1].x;
+			m_model[index].y = grid[i-1][j+1].y;
+			m_model[index].z = grid[i-1][j+1].z;
+			m_model[index].tu = grid[i-1][j+1].tu;
+			m_model[index++].tv = grid[i-1][j+1].tv;
+		}
+	}
+
+	return true;
 }

@@ -11,9 +11,13 @@ GraphicsClass::GraphicsClass()
 	m_Model = 0;
 	m_Model2 = 0;
 	m_Sphere = 0;
+
 	m_LightShader = 0;
 	m_alphaFadeShader = 0;
+	m_BitmapShader = 0;
+	m_ParticleShader = 0;
 	m_testShader = 0;
+	
 	m_Light = 0;
 	m_positions = 0;
 	m_phases = 0;
@@ -69,8 +73,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 20, L"../data/grass.png", L"../data/floor2_ddn.jpg");
+	//result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 20, L"../data/rock.png", L"../data/floor2_ddn.jpg");
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 64, 64, 1, 1, L"../data/hmap.png", L"../data/rock.png", L"../data/grass.png", L"../data/dirt.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
@@ -87,7 +92,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/cloud3.png", L"../data/SnakeScale.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../data/bill.txt", L"../data/fire.png", L"../data/SnakeScale.jpg");
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), .3, .7, 20, 1, 1, L"../data/BTS.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -392,19 +397,17 @@ bool GraphicsClass::Render(float time)
 	m_Sphere->Render(m_D3D->GetDeviceContext(), worldMatrix);
 	//D3DXMatrixMultiply(&worldMatrix, &temp, &worldMatrix);
 
-	// Render the model using the alpha shader.
+	//*// Render the model using the alpha shader.
 	result = m_alphaFadeShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 		m_Sphere->GetTexture(), (1 + cos(time * .001f)) * .5);
-	
-	/*result = m_BitmapShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, projectionMatrix, 
-		m_Sphere->GetTexture());*/
 	
 	if(!result)
 	{
 		return false;
 	}
+	//*/
 
-	//// Render the model using the light shader.
+	/*// Render the model using the light shader.
 	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Sphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 	//	m_Sphere->GetTexture(), D3DXVECTOR3(0,0,0), D3DXVECTOR4(1.0, 1.0, 1.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f),  
 	//	D3DXVECTOR3(0.0f, 0.0f, 1.0f), D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f), 0.0f);
@@ -412,6 +415,7 @@ bool GraphicsClass::Render(float time)
 	//{
 	//	return false;
 	//}
+	//*/
 
 	m_D3D->TurnZBufferOn();
 	m_D3D->CullBackFace();
@@ -421,23 +425,26 @@ bool GraphicsClass::Render(float time)
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
-	D3DXMatrixTranslation(&worldMatrix, 0, -1, 0);
+	D3DXMatrixScaling(&worldMatrix, 200, 0, 200);
 	//D3DXMatrixRotationX(&worldMatrix, 90);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext(), worldMatrix);
 
-	/*/ Render the model using the light shader.
+	//*/ Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 								   m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), 
 								   m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	//*/
 	
+	/*/
+	m_testShader->ClearStacks();
 	m_testShader->PushMatrix(&projectionMatrix);
 	m_testShader->PushMatrix(&viewMatrix);
 	m_testShader->PushMatrix(&worldMatrix);
 	m_testShader->PushResourceView(m_Model->GetTexture()[0]);
 	result = m_testShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount());
+	//*/
 
 	if(!result)
 	{

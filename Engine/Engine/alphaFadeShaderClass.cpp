@@ -355,6 +355,6 @@ bool AlphaFadeShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DX
 	
 	// Set shader texture resource in the pixel shader.
 	devCon->PSSetShaderResources(0, 2, texture);
-
+	//devCon->VSSetShaderResources(0, 2, texture);
 	return true;
 }

@@ -164,3 +164,23 @@ void ShaderBaseClass::PushResourceView(ID3D11ShaderResourceView* rv)
 {
 	m_stResourceView.push(rv);
 }
+
+void ShaderBaseClass::ClearStacks()
+{
+	while(!m_stFloat.empty())
+	{
+		m_stFloat.pop();
+	}
+	while(!m_stMatrix.empty())
+	{
+		m_stMatrix.pop();
+	}
+	while(!m_stVec3.empty())
+	{
+		m_stVec3.pop();
+	}
+	while(!m_stResourceView.empty())
+	{
+		m_stResourceView.pop();
+	}
+}

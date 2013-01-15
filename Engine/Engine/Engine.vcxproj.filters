@@ -160,5 +160,11 @@
     <None Include="alphafade.ps">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="heightmap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="heightmap.ps">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

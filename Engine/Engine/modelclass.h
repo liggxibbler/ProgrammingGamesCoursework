@@ -17,6 +17,7 @@ using namespace std;
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "textureclass.h"
+#include "shaderBaseClass.h"
 
 enum ModelEnum
 {
@@ -77,10 +78,11 @@ public:
 
 	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*); // from file
 	bool Initialize(ID3D11Device*, float, float, int, int, float, WCHAR*, WCHAR*); // cylinder
-	bool Initialize(ID3D11Device*, int, int, int, int, WCHAR*, WCHAR*); // quad mesh
+	bool Initialize(ID3D11Device*, int, int, float, float, WCHAR*, WCHAR*, WCHAR*, WCHAR*); // quad mesh
 
 	void Shutdown();
 	void Render(ID3D11DeviceContext*, D3DXMATRIX& worldMatrix);
+	void Render(ID3D11DeviceContext*, ShaderBaseClass* shader);
 
 	bool CalculateBNT(ID3D11Device* device);
 	void SetSphericalTexCoords(ID3D11Device* device); // not good
@@ -97,10 +99,12 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*);
 
 	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*);
+	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
 	bool LoadCylinder(float Radius, float Height, int numRSlice, int numVSlice, float texScale);
+	bool LoadQuadMesh(int rows, int cols, float uTexScale, float vTexScale);
 	void ReleaseModel();
 	
 	void CalculateTangentBinormal(int, int, int);

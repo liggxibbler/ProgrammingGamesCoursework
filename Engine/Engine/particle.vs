@@ -185,8 +185,8 @@ PixelInput ParticleVertexShader(VertexInput input)
 	input.position.w = 1.0f;
 
 	//output = RotoZoom(input);
-	//output = Rain(input);
-	output = Fire(input);
+	output = Rain(input);
+	//output = Fire(input);
 	//output = Spray(input);
 	
 	//output = WorldViewProjection(output);

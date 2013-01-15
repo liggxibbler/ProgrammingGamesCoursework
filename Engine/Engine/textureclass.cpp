@@ -19,6 +19,22 @@ TextureClass::~TextureClass()
 {
 }
 
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
+{
+	HRESULT result;
+
+	m_texture = new ID3D11ShaderResourceView*;
+
+	// Load the texture in.
+	result = D3DX11CreateShaderResourceViewFromFile(device, filename, NULL, NULL, m_texture, NULL);
+	if(FAILED(result))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 
 bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename, WCHAR* filename2)
 {
@@ -38,7 +54,7 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename, WCHAR* file
 		result = D3DX11CreateShaderResourceViewFromFile(device, filename2, NULL, NULL, &(m_texture[1]), NULL);
 		if(FAILED(result))
 		{
-			return false;
+			m_texture[1] = 0;
 		}
 	}
 	else
@@ -48,6 +64,60 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename, WCHAR* file
 	return true;
 }
 
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* heightmap, WCHAR* primary, WCHAR* secondary, WCHAR* tertiary)
+{
+	HRESULT result;
+
+	m_texture = new ID3D11ShaderResourceView*[4];
+
+	// Load the texture in.
+	result = D3DX11CreateShaderResourceViewFromFile(device, heightmap, NULL, NULL, &(m_texture[0]), NULL);
+	if(FAILED(result))
+	{
+		return false;
+	}
+	
+	if(primary != NULL)
+	{
+		result = D3DX11CreateShaderResourceViewFromFile(device, primary, NULL, NULL, &(m_texture[1]), NULL);
+		if(FAILED(result))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		m_texture[1] = 0;
+	}
+
+	if(secondary != NULL)
+	{
+		result = D3DX11CreateShaderResourceViewFromFile(device, primary, NULL, NULL, &(m_texture[2]), NULL);
+		if(FAILED(result))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		m_texture[2] = 0;
+	}
+
+	if(tertiary != NULL)
+	{
+		result = D3DX11CreateShaderResourceViewFromFile(device, tertiary, NULL, NULL, &(m_texture[3]), NULL);
+		if(FAILED(result))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		m_texture[3] = 0;
+	}
+
+	return true;
+}
 
 void TextureClass::Shutdown()
 {

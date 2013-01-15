@@ -1,0 +1,27 @@
+Texture2D heightTex[3];
+SamplerState sampler;
+
+struct PixelInput
+{
+	 float4 position : SV_POSITION;
+	 float2 tex : TEXCOORD0;
+	 float3 normal : NORMAL;
+	 float alpha1 : TEXCOORD1;
+	 float alpha2 : TEXCOORD2;
+};
+
+float4 HeightMapPixelShader(PixelInput input)
+{
+	float4 tex0, tex1, tex2;
+	float4 color;
+
+	tex0 = heightTex[0].Sample(sampler, input.tex);
+	tex1 = heightTex[1].Sample(sampler, input.tex);
+	tex2 = heightTex[2].Sample(sampler, input.tex);
+
+	color = tex0;
+	color = (input.alpha1 * tex1) + ((1-input.alpha1) * color);
+	color = (input.alpha2 * tex2) + ((1-input.alpha2) * color);
+	
+	return color;
+}
