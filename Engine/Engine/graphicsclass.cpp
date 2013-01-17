@@ -67,7 +67,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
-	
+	m_Camera->Render();
+
 	m_Text = new TextClass;
 	if(!m_Text)
 	{
@@ -427,6 +428,8 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 	D3DXVec3TransformCoord(&tempVec, &tempVec, &tempMat);
 	m_Light->SetDirection(tempVec.x, tempVec.y, tempVec.z);
 	
+	m_Text->SetCpu(guInf.cpu, m_D3D->GetDeviceContext());
+	m_Text->SetFps(guInf.fps, m_D3D->GetDeviceContext());
 
 	// Render the graphics scene.
 	result = Render(time);
@@ -604,7 +607,7 @@ bool GraphicsClass::Render(float time)
 
 	static D3DXMATRIX orthoMatrix;
 	m_D3D->GetOrthoMatrix(orthoMatrix);
-
+	m_D3D->GetWorldMatrix(worldMatrix);
 	m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
 
 	m_D3D->TurnAlphaBlendingOff();	
