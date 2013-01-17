@@ -83,6 +83,8 @@
     <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="cpuclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="fontclass.cpp" />
+    <ClCompile Include="fontshaderclass.cpp" />
     <ClCompile Include="fpsclass.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
@@ -96,6 +98,7 @@
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="terrainShaderClass.cpp" />
     <ClCompile Include="testGenericShader.cpp" />
+    <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
     <ClCompile Include="timerclass.cpp" />
   </ItemGroup>
@@ -105,6 +108,8 @@
     <ClInclude Include="cameraclass.h" />
     <ClInclude Include="cpuclass.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="fontclass.h" />
+    <ClInclude Include="fontshaderclass.h" />
     <ClInclude Include="fpsclass.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
@@ -117,6 +122,7 @@
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="terrainShaderClass.h" />
     <ClInclude Include="testGenericShader.h" />
+    <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="timerclass.h" />
   </ItemGroup>
@@ -125,6 +131,8 @@
     <None Include="alphafade.vs" />
     <None Include="bitmap.ps" />
     <None Include="bitmap.vs" />
+    <None Include="font.ps" />
+    <None Include="font.vs" />
     <None Include="heightmap.ps" />
     <None Include="heightmap.vs" />
     <None Include="light.ps" />

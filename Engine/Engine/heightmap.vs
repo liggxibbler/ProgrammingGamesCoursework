@@ -26,7 +26,7 @@ PixelInput HeightmapVertexShader(VertexInput input)
 {
 	PixelInput output;
 	float4 map;
-	float scale = 100;
+	float scale = 120;
 
 	map = heightmap.SampleLevel(vsSampler, input.tex, 0);
 

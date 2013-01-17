@@ -21,6 +21,7 @@ TextureClass::~TextureClass()
 
 bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
 {
+	m_textureCount = 1;
 	HRESULT result;
 
 	m_texture = new ID3D11ShaderResourceView*;
@@ -41,6 +42,8 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename, WCHAR* file
 	HRESULT result;
 
 	m_texture = new ID3D11ShaderResourceView*[2];
+
+	m_textureCount = 2;
 
 	// Load the texture in.
 	result = D3DX11CreateShaderResourceViewFromFile(device, filename, NULL, NULL, &(m_texture[0]), NULL);
@@ -66,6 +69,8 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename, WCHAR* file
 
 bool TextureClass::Initialize(ID3D11Device* device, WCHAR* heightmap, WCHAR* primary, WCHAR* secondary, WCHAR* tertiary)
 {
+	m_textureCount = 4;
+
 	HRESULT result;
 
 	m_texture = new ID3D11ShaderResourceView*[4];
@@ -122,18 +127,14 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* heightmap, WCHAR* pri
 void TextureClass::Shutdown()
 {
 	// Release the texture resource.
-	if(m_texture[0])
+	for(int i=0; i< m_textureCount;i++)
 	{
-		m_texture[0]->Release();
-		m_texture[0] = 0;
+		if(m_texture[i])
+		{
+			m_texture[i]->Release();
+			m_texture[i] = 0;
+		}
 	}
-
-	if(m_texture[1])
-	{
-		m_texture[1]->Release();
-		m_texture[1] = 0;
-	}
-
 	return;
 }
 

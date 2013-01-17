@@ -32,6 +32,7 @@ public:
 
 private:
 	ID3D11ShaderResourceView** m_texture;
+	int m_textureCount;
 };
 
 #endif

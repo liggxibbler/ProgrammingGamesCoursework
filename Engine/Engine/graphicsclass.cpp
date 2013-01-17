@@ -11,6 +11,7 @@ GraphicsClass::GraphicsClass()
 	m_Model = 0;
 	m_Model2 = 0;
 	m_Sphere = 0;
+	m_Text = 0;
 
 	m_LightShader = 0;
 	m_alphaFadeShader = 0;
@@ -18,6 +19,7 @@ GraphicsClass::GraphicsClass()
 	m_ParticleShader = 0;
 	m_testShader = 0;
 	m_terrainShader = 0;
+	m_FontShader = 0;
 	
 	m_Light = 0;
 	m_positions = 0;
@@ -64,8 +66,25 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
 	
+	m_Text = new TextClass;
+	if(!m_Text)
+	{
+		 return false;
+	}
+
+	D3DXMATRIX matrix;
+	m_Camera->GetViewMatrix(matrix);
+	result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, matrix);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize text object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+
 	// Create the model object.
 	m_Model = new ModelClass;
 	if(!m_Model)
@@ -76,7 +95,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Initialize the model object.
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 50, 0, 20, 20, 20, L"../data/rock.png", L"../data/floor2_ddn.jpg");
 	//result = m_Model->Initialize(m_D3D->GetDevice(), 200, 0, 4, 1, 500, L"../data/grass.png", L"../data/sphere.png");
-	result = m_Model->Initialize(m_D3D->GetDevice(), 64, 64, 1, 1, L"../data/hmapbw.png", L"../data/rock.png", L"../data/grass.png", L"../data/dirt.png");
+	result = m_Model->Initialize(m_D3D->GetDevice(), 64, 64, 1, 1, L"../data/hmaprgb.png", L"../data/dirt.png", L"../data/grass.png", L"../data/rock.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize ground mesh object.", L"Error", MB_OK);
@@ -114,7 +133,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Initialize the model object.
 	//result = m_Model2->Initialize(m_D3D->GetDevice(), 10, 25, 20, 1, 2, L"../data/standing.png");
-	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/day.png", L"../data/night.png");
+	result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/day2.png", L"../data/night2.png");
 	//result = m_Sphere->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/mountain_day.png", L"../data/BTSn.png");
 	if(!result)
 	{
@@ -166,7 +185,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_testShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the bitmap shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the test shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -196,7 +215,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_alphaFadeShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the aplha shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -211,7 +230,22 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_terrainShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the terrain shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the font shader object.
+	m_FontShader = new FontShaderClass;
+	if(!m_FontShader)
+	{
+		return false;
+	}
+
+	// Initialize the terrain shader object.
+	result = m_FontShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -267,6 +301,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
+	if(m_Text)
+	{
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
+
+	if(m_FontShader)
+	{
+		m_FontShader->Shutdown();
+		delete m_FontShader;
+		m_FontShader = 0;
+	}
+
 	if(m_positions)
 	{
 		delete [] m_positions;
@@ -378,6 +426,7 @@ bool GraphicsClass::Frame(GraphicsClass::GraphicsUpdateInfo& guInf)
 	D3DXMatrixRotationZ(&tempMat, guInf.time * .001f);
 	D3DXVec3TransformCoord(&tempVec, &tempVec, &tempMat);
 	m_Light->SetDirection(tempVec.x, tempVec.y, tempVec.z);
+	
 
 	// Render the graphics scene.
 	result = Render(time);
@@ -545,13 +594,19 @@ bool GraphicsClass::Render(float time)
 		m_Model2->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
 		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Model2->GetTexture(), time, m_speeds[j], m_phases[j], 2.0);
+			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Model2->GetTexture(), time, m_speeds[j], m_phases[j], 1.0f);
 		if(!result)
 		{
 			return false;
 		}
 
 	}
+
+	static D3DXMATRIX orthoMatrix;
+	m_D3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+
 	m_D3D->TurnAlphaBlendingOff();	
 	m_D3D->TurnZBufferOn();
 

@@ -8,6 +8,9 @@ SystemClass::SystemClass()
 {
 	m_Input = 0;
 	m_Graphics = 0;
+	m_timer = 0;
+	m_cpu = 0;
+	m_fps = 0;
 }
 
 
@@ -74,12 +77,44 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+	m_fps = new FpsClass();
+	if(!m_fps)
+	{
+		return false;
+	}
+	m_fps->Initialize();
+
+	m_cpu = new CpuClass();
+	if(!m_cpu)
+	{
+		return false;
+	}
+	m_cpu->Initialize();
+
 	return true;
 }
 
 
 void SystemClass::Shutdown()
 {
+	if(m_timer)
+	{
+		delete m_timer;
+		m_timer = 0;
+	}
+
+	if(m_cpu)
+	{
+		delete m_cpu;
+		m_cpu = 0;
+	}
+
+	if(m_fps)
+	{
+		delete m_fps;
+		m_fps = 0;
+	}
+
 	// Release the graphics object.
 	if(m_Graphics)
 	{
@@ -161,6 +196,9 @@ bool SystemClass::Frame()
 		return false;
 	}
 
+	m_fps->Frame();
+	m_cpu->Frame();
+
 	static GraphicsClass::GraphicsUpdateInfo guInf;
 	guInf.wKey = m_Input->IsWPressed();
 	guInf.aKey = m_Input->IsAPressed();
@@ -168,7 +206,8 @@ bool SystemClass::Frame()
 	guInf.dKey = m_Input->IsDPressed();
 	guInf.time = (float)(m_timer->GetTime());
 	m_Input->GetMouseDiff(guInf.mouseDiffX, guInf.mouseDiffY);
-
+	guInf.cpu = m_cpu->GetCpuPercentage();
+	guInf.fps = m_fps->GetFps();
 
 	// Do the frame processing for the graphics object.
 	result = m_Graphics->Frame(guInf);

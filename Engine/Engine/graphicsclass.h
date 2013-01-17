@@ -11,15 +11,18 @@
 #include "d3dclass.h"
 #include "cameraclass.h"
 #include "modelclass.h"
+
 #include "lightshaderclass.h"
 #include "bitmapShaderClass.h"
 #include "particleshaderclass.h"
 #include "alphaFadeShaderClass.h"
 #include "TerrainShaderClass.h"
 #include "testGenericShader.h"
-#include "lightclass.h"
-#include "timerclass.h"
+#include "fontshaderclass.h"
 
+#include "lightclass.h"
+
+#include "textclass.h"
 
 /////////////
 // GLOBALS //
@@ -41,6 +44,7 @@ public:
 		bool wKey, aKey, sKey, dKey;
 		int mouseDiffX, mouseDiffY;
 		float time;
+		int fps, cpu;
 	};
 
 public:
@@ -68,8 +72,11 @@ private:
 	AlphaFadeShaderClass* m_alphaFadeShader;
 	TestGenericShader* m_testShader;
 	TerrainShaderClass* m_terrainShader;
+	FontShaderClass* m_FontShader;
 
 	LightClass* m_Light;
+	TextClass* m_Text;
+
 	D3DXVECTOR3* m_positions;
 	float* m_phases;
 	float* m_speeds;

@@ -81,6 +81,15 @@
     <ClCompile Include="terrainShaderClass.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
+    <ClCompile Include="fontclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fontshaderclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -140,6 +149,15 @@
     <ClInclude Include="terrainShaderClass.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
+    <ClInclude Include="fontclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fontshaderclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -170,6 +188,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="heightmap.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="font.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="font.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
