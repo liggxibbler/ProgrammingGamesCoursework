@@ -980,6 +980,14 @@ bool ModelClass::LoadQuadMesh(int rows, int cols, float uScale, float vScale)
 		m_model[i].x = 0.0f;
 		m_model[i].y = 1.0f;
 		m_model[i].z = 0.0f;
+
+		m_model[i].bx = 0.0f;
+		m_model[i].by = 0.0f;
+		m_model[i].bz = -1.0f;
+
+		m_model[i].tx = 1.0f;
+		m_model[i].ty = 0.0f;
+		m_model[i].tz = 0.0f;
 	}
 
 	for(int i=1; i<=cols-1;i++)

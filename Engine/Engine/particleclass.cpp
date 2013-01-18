@@ -59,6 +59,8 @@ bool ParticleClass::Initialize(int count, float* ranges, float* paramRanges, flo
 
 	 m_zPos = new zSort[m_particleCount];
 
+	 m_type = type;
+
 	return true;
 }
 

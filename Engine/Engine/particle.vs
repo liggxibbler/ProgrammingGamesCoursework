@@ -78,9 +78,9 @@ PixelInput RotoZoom(VertexInput input)
 	output.position = input.position;
 	sFactor = Scale(time, frequency, phase);
 
-	output.position.xyz = 3 * sFactor * input.position.xyz;
+	output.position.xyz = sFactor * input.position.xyz;
 	output.position.w = 1.0f; // needed for matrix operations
-	output.position = mul(RotateZ(2*3.1415926*time*frequency / 10.0f - phase), output.position);
+	output.position = mul(RotateZ(2*3.1415926*time*frequency/10.0 - phase), output.position);
 
 	output.alpha = 1.0 - (sFactor - 1.5);
 	

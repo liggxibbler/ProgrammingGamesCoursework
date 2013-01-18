@@ -65,9 +65,21 @@ private:
 	CameraClass* m_Camera;
 	
 	ModelClass* m_Groundmesh;
+	ModelClass* m_Ground2;
 	ModelClass* m_Billboard;
 	ModelClass* m_Sphere;
+	
+	//ModelClass* m_bbFire;
+	ModelClass* m_bbClouds;
+	ModelClass* m_bbRain;
+	ModelClass* m_bbSnow;
+	ModelClass* m_bbTrees;
+
 	ParticleClass* m_fire;
+	ParticleClass* m_clouds;
+	ParticleClass* m_rain;
+	ParticleClass* m_snow;
+	ParticleClass* m_trees;
 
 	LightShaderClass* m_LightShader;
 	BitmapShaderClass* m_BitmapShader;
