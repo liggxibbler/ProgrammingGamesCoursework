@@ -605,20 +605,14 @@ bool GraphicsClass::Render(float time)
 	//m_D3D->TurnZBufferOff();
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(viewMatrix);
+	
+	int j;
 	m_fire->SortByZ(viewMatrix);
 	for(int i = 0; i< m_fire->GetCount(); i++)
 	{
-		int j = m_fire->GetCount() - 1 - m_fire->GetIndex(i);
-		//int j = i;
-
+		j = m_fire->GetIndex(i);
 		m_Camera->GetBillboardAlign(cameraRot);
-		//m_D3D->GetWorldMatrix(cameraRot);
-
-		//m_D3D->GetWorldMatrix(worldMatrix);
-		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
-		D3DXMatrixTranslation(&worldMatrix, m_fire->GetPositions()[j].x, m_fire->GetPositions()[j].y, m_fire->GetPositions()[j].z);
-		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &tempMatrix);
-		
+		D3DXMatrixTranslation(&worldMatrix, m_fire->GetPositions()[j].x, m_fire->GetPositions()[j].y, m_fire->GetPositions()[j].z);	
 
 		m_Billboard->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		

@@ -103,7 +103,7 @@ void ParticleClass::SortByZ(D3DXMATRIX &viewMatrix)
 		{
 			zi = m_zPos[i].z;
 			zj = m_zPos[j].z;
-			if(zi > zj)
+			if(zi < zj)
 			{
 				zTemp = zSort(m_zPos[i].z, m_zPos[i].i);
 				m_zPos[i] = zSort(m_zPos[j].z, m_zPos[j].i);
