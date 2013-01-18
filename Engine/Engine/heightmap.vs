@@ -28,6 +28,7 @@ PixelInput HeightmapVertexShader(VertexInput input)
 	float4 map;
 	float scale = 120;
 
+	// use SampleLevel instead of Sample in pixel shader - vs 5 specs
 	map = heightmap.SampleLevel(vsSampler, input.tex, 0);
 
 	output.position.y = map.r * 1;

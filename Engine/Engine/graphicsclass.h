@@ -11,6 +11,7 @@
 #include "d3dclass.h"
 #include "cameraclass.h"
 #include "modelclass.h"
+#include "particleclass.h"
 
 #include "lightshaderclass.h"
 #include "bitmapShaderClass.h"
@@ -62,9 +63,11 @@ private:
 private:
 	D3DClass* m_D3D;
 	CameraClass* m_Camera;
+	
 	ModelClass* m_Groundmesh;
 	ModelClass* m_Billboard;
 	ModelClass* m_Sphere;
+	ParticleClass* m_fire;
 
 	LightShaderClass* m_LightShader;
 	BitmapShaderClass* m_BitmapShader;

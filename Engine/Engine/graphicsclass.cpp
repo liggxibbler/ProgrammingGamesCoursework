@@ -8,10 +8,12 @@ GraphicsClass::GraphicsClass()
 {
 	m_D3D = 0;
 	m_Camera = 0;
+	
 	m_Groundmesh = 0;
 	m_Billboard = 0;
 	m_Sphere = 0;
 	m_Text = 0;
+	m_fire = 0;
 
 	m_LightShader = 0;
 	m_alphaFadeShader = 0;
@@ -84,7 +86,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 10.0f, -20.0f);
 
 	// Create the model object.
 	m_Groundmesh = new ModelClass;
@@ -251,6 +253,18 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	m_fire = new ParticleClass;
+	
+	float params[6] = {-20.0, 20.0, 10.0, 20.0, -20.0, 20.0};
+	float wparams[4] = {0.0, 2*D3DX_PI, 0.0, 0.1};
+
+
+	if(!m_fire)
+	{
+		return false;
+	}
+	m_fire->Initialize(100, params, wparams, 3.0, true, 4);
+
 	// Create the light object.
 	m_Light = new LightClass;
 	if(!m_Light)
@@ -303,6 +317,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
+	if(m_fire)
+	{
+		m_fire->Shutdown();
+		delete m_fire;
+		m_fire = 0;
+	}
+
 	if(m_Text)
 	{
 		m_Text->Shutdown();
@@ -539,6 +560,7 @@ bool GraphicsClass::Render(float time)
 
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
+	/* does the z-sorting
 	struct zSort
 	{
 		float z;
@@ -577,28 +599,32 @@ bool GraphicsClass::Render(float time)
 			}
 		}
 	}
-
+	//*/ //z-sorting done 
 
 	m_D3D->TurnAlphaBlendingOn();
 	//m_D3D->TurnZBufferOff();
-	for(int i = 0; i< 100; i++)
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_fire->SortByZ(viewMatrix);
+	for(int i = 0; i< m_fire->GetCount(); i++)
 	{
-		int j = 99 - zPos[i].i;
+		int j = m_fire->GetCount() - 1 - m_fire->GetIndex(i);
 		//int j = i;
 
 		m_Camera->GetBillboardAlign(cameraRot);
 		//m_D3D->GetWorldMatrix(cameraRot);
 
-		m_D3D->GetWorldMatrix(worldMatrix);
+		//m_D3D->GetWorldMatrix(worldMatrix);
 		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &cameraRot);
-		D3DXMatrixTranslation(&tempMatrix, m_positions[j].x, 0, m_positions[j].z);
-		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &tempMatrix);
+		D3DXMatrixTranslation(&worldMatrix, m_fire->GetPositions()[j].x, m_fire->GetPositions()[j].y, m_fire->GetPositions()[j].z);
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &tempMatrix);
 		
 
 		m_Billboard->Render(m_D3D->GetDeviceContext(), worldMatrix);
 		
 		result = m_ParticleShader->Render(m_D3D->GetDeviceContext(), m_Billboard->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Billboard->GetTexture(), time, m_speeds[j], m_phases[j], 3.0f, 0);
+			cameraRot, m_Camera->GetPosition(), m_Camera->GetDirection(), m_Camera->GetUp(), m_Billboard->GetTexture(),
+			time, m_fire->GetSpeeds()[j], m_fire->GetPhases()[j], m_fire->GetLife(), m_fire->GetType());
 		if(!result)
 		{
 			return false;
