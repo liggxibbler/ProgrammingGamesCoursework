@@ -12,6 +12,8 @@ cbuffer TimeBuffer
 	float frequency;
 	float phase;
 	float life;
+	float type;
+	float3 time_padding;
 }
 
 cbuffer CameraBuffer
@@ -165,6 +167,7 @@ PixelInput Spray(VertexInput input)
 	return output;
 }
 
+/*
 PixelInput WorldViewProjection(PixelInput input)
 {
 	PixelInput output;
@@ -177,6 +180,7 @@ PixelInput WorldViewProjection(PixelInput input)
 
 	return output;
 }
+//*/
 
 PixelInput ParticleVertexShader(VertexInput input)
 {
@@ -184,12 +188,23 @@ PixelInput ParticleVertexShader(VertexInput input)
 
 	input.position.w = 1.0f;
 
-	//output = RotoZoom(input);
-	//output = Rain(input);
-	output = Fire(input);
-	//output = Spray(input);
+	if(type == 1)
+	{
+		output = Rain(input);
+	}
+	else if(type == 2)
+	{
+		output = RotoZoom(input);
+	}
+	else if(type == 3)
+	{
+		output = Spray(input);
+	}
+	else
+	{
+		output = Fire(input);
+	}
 	
-	//output = WorldViewProjection(output);
 
 	output.position = mul(output.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);

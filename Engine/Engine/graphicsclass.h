@@ -62,8 +62,8 @@ private:
 private:
 	D3DClass* m_D3D;
 	CameraClass* m_Camera;
-	ModelClass* m_Model;
-	ModelClass* m_Model2;
+	ModelClass* m_Groundmesh;
+	ModelClass* m_Billboard;
 	ModelClass* m_Sphere;
 
 	LightShaderClass* m_LightShader;

@@ -958,8 +958,9 @@ bool ModelClass::LoadQuadMesh(int rows, int cols, float uScale, float vScale)
 		{
 			grid[i][j].x = (float)i/(float)rows - .5f;
 			grid[i][j].z = 0.5f - (float)j/(float)cols;
-			r = sqrt(grid[i][j].x*grid[i][j].x + grid[i][j].z * grid[i][j].z);
-			grid[i][j].y = sinf(r * 30) * cosf(r * 30) * .05;
+			//r = sqrt(grid[i][j].x*grid[i][j].x + grid[i][j].z * grid[i][j].z);
+			//grid[i][j].y = sinf(r * 30) * cosf(r * 30) * .05;
+			grid[i][j].y = 0;
 
 			grid[i][j].tu = (float)i/(float)rows*uScale;
 			grid[i][j].tv = (float)j/(float)cols*vScale;
@@ -973,6 +974,13 @@ bool ModelClass::LoadQuadMesh(int rows, int cols, float uScale, float vScale)
 	}
 
 	int index = 0;
+
+	for(int i=0; i < m_vertexCount; i++)
+	{
+		m_model[i].x = 0.0f;
+		m_model[i].y = 1.0f;
+		m_model[i].z = 0.0f;
+	}
 
 	for(int i=1; i<=cols-1;i++)
 	{

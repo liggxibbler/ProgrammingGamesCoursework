@@ -37,6 +37,8 @@ class ParticleShaderClass
 		float frequency;
 		float phase;
 		float life;
+		float type;
+		D3DXVECTOR3 padding;
 	};
 public:
 	ParticleShaderClass();
@@ -47,14 +49,15 @@ public:
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* devCon, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix,
 		D3DXMATRIX billboard, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp, ID3D11ShaderResourceView** texture,
-		float time, float frequency, float phase, float life);
+		float time, float frequency, float phase, float life, int type); // types are : 1. rain, 2. rotozoom, 3. spray, anything else: fire
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 	bool SetShaderParameters(ID3D11DeviceContext* devCon, D3DXMATRIX worldMatrix, D3DXMATRIX projectionMatrix, D3DXMATRIX viewMatrix,
-		D3DXMATRIX billboard, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp, ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life);
+		D3DXMATRIX billboard, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp, ID3D11ShaderResourceView** texture,
+		float time, float frequency, float phase, float life, int type);
 	void RenderShader(ID3D11DeviceContext* devCon, int indexCount);
 
 private:

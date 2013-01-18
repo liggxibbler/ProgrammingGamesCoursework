@@ -10,21 +10,13 @@ public:
 	ParticleClass(ParticleClass&);
 	~ParticleClass();
 
-	bool Initialize(WCHAR*, int);// texture, number of quads
-								 // lifespan, movement pattern, emmitter position, emmission direction
-								 // maybe this should be a base class and some more specialized classes should be added?
-	void Frame();
-	void Render(); //
+	bool Initialize(int count, float* ranges, bool random); // random or uniform distribution
 	void Shutdown();
-
+	void SortByZ(D3DXMATRIX &viewMatrix);
 private:
-	// sort method
-	void SortByZ(D3DXMATRIX& viewMatrix);
-private:
-	ModelClass* m_quad;
-	int m_quadCount;
-	float* m_params;
+	int m_particleCount;
 	float* m_position;
+	float** m_params;
 };
 
 #endif

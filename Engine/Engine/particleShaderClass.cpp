@@ -38,11 +38,11 @@ void ParticleShaderClass::Shutdown()
 
 bool ParticleShaderClass::Render(ID3D11DeviceContext* devCon, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
 	D3DXMATRIX projectionMatrix, D3DXMATRIX billboardMatrix, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp,
-	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life)
+	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life, int type)
 {
 	bool result;
 	result = SetShaderParameters(devCon, worldMatrix, viewMatrix, projectionMatrix, billboardMatrix, camPosition, camAt, camUp,
-		texture, time, frequency, phase, life);
+		texture, time, frequency, phase, life, type);
 	if(!result)
 	{
 		return false;
@@ -316,7 +316,7 @@ void ParticleShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 
 bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 	D3DXMATRIX projectionMatrix, D3DXMATRIX billboardMatrix, D3DXVECTOR3 camPosition, D3DXVECTOR3 camAt, D3DXVECTOR3 camUp,
-	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life)
+	ID3D11ShaderResourceView** texture, float time, float frequency, float phase, float life, int type)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -372,6 +372,8 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* devCon, D3DXM
 	timePtr->frequency = frequency;
 	timePtr->phase = phase;
 	timePtr->life = life;
+	timePtr->type = type;
+	timePtr->padding = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// Unlock the constant buffer.
     devCon->Unmap(m_timeBuffer, 0);
